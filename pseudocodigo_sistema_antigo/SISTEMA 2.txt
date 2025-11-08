@@ -1,0 +1,211 @@
+// Continuação do pseudocódigo — sistema de pedidos para lanchonete
+// Estilo: estudante de Sistemas de Computação
+
+Algoritmo <sistema de pedidos para lanchonete> (continuação)
+inteiro: opcaoMenu
+inteiro: opcaoHamburguer
+inteiro: quantidade
+real: precoTotal
+lista: listaHamburgueres
+registro: hamburguerSelecionado
+
+// Variáveis adicionais
+lista: carrinho
+lista: listaPedidos
+registro: pedidoSelecionado
+inteiro: codigoEntrega
+cadeia: dataHoraAtual
+
+Inicio
+
+// Funções utilitárias
+Função gerarIDPedido(): inteiro
+    static inteiro: contadorPedidos ← 10000
+    contadorPedidos ← contadorPedidos + 1
+    Retorne contadorPedidos
+Fim da Função gerarIDPedido
+
+Função gerarCodigoEntrega(): inteiro
+    Retorne AleatorioEntre(100000, 999999)
+Fim da Função gerarCodigoEntrega
+
+Função calcularTotalCarrinho(carrinho): real
+    real: total ← 0.0
+    Para cada item em carrinho faça
+        total ← total + (item.preco * item.qtd)
+    FimPara
+    Retorne total
+Fim da Função calcularTotalCarrinho
+
+Função salvarPedidoNoBanco(pedido)
+    listaPedidos.adicionar(pedido)
+Fim da Função salvarPedidoNoBanco
+
+Função atualizarStatusPedido(idPedido, novoStatus)
+    Para cada p em listaPedidos faça
+        Se p.id == idPedido então
+            p.status ← novoStatus
+            Pare
+        FimSe
+    FimPara
+Fim da Função atualizarStatusPedido
+
+Função buscarPedidosPorStatus(status): lista
+    lista: resultado ← []
+    Para cada p em listaPedidos faça
+        Se p.status == status então
+            resultado.adicionar(p)
+        FimSe
+    FimPara
+    Retorne resultado
+Fim da Função buscarPedidosPorStatus
+
+// --- CARRINHO E CHECKOUT ---
+
+Função menuCarrinhoOpcoes(): 
+    Escrever("Digite o número da opção: ")
+    Leia opcaoMenu
+    Se opcaoMenu == 1:
+        iniciarCheckout()
+    Senão se opcaoMenu == 2:
+        menuRemoverItem()
+    Senão se opcaoMenu == 0:
+        menuCatalogo()
+    Senão:
+        Escrever("Opção inválida!")
+        menuCarrinhoOpcoes()
+    FimSe
+Fim da Função menuCarrinhoOpcoes
+
+Função menuCarrinho()
+    Escrever("========================================")
+    Escrever("| Carrinho E Finalização |")
+    Escrever("========================================")
+    Se tamanho(carrinho) == 0 então
+        Escrever("Carrinho vazio.")
+    Senão
+        Para i de 1 até tamanho(carrinho) faça
+            item ← carrinho[i-1]
+            Escrever(i, " - ", item.qtd, "x ", item.nome, " ", se item.tamanho != nulo então item.tamanho fimse, " | R$ ", item.preco)
+        FimPara
+        Escrever("TOTAL: R$ ", calcularTotalCarrinho(carrinho))
+    FimSe
+
+    Escrever("")
+    Escrever("1 - Efetuar Pedido")
+    Escrever("2 - Remover Item")
+    Escrever("0 - Voltar")
+    menuCarrinhoOpcoes()
+Fim da Função menuCarrinho
+
+Função menuRemoverItem()
+    Escrever("========================================")
+    Escrever("| Remover Item Do Carrinho |")
+    Escrever("========================================")
+    Se tamanho(carrinho) == 0 então
+        Escrever("Não há itens para remover.")
+        menuCarrinho()
+        Retorne
+    FimSe
+
+    Para i de 1 até tamanho(carrinho) faça
+        item ← carrinho[i-1]
+        Escrever(i, " - ", item.qtd, "x ", item.nome, " ", se item.tamanho != nulo então item.tamanho fimse)
+    FimPara
+    Escrever("Digite o número do item a ser removido (0 para cancelar):")
+    Leia opcaoMenu
+    Se opcaoMenu == 0 então
+        menuCarrinho()
+    Senão se opcaoMenu >= 1 E opcaoMenu <= tamanho(carrinho) então
+        removerItem ← carrinho.remover(opcaoMenu - 1)
+        Escrever("Item removido: ", removerItem.nome)
+        menuCarrinho()
+    Senão
+        Escrever("Número inválido. Tente novamente.")
+        menuRemoverItem()
+    FimSe
+Fim da Função menuRemoverItem
+
+// Checkout multi-etapas
+Função iniciarCheckout()
+    Se tamanho(carrinho) == 0 então
+        Escrever("Carrinho vazio. Não é possível efetuar pedido.")
+        menuPrincipal()
+        Retorne
+    FimSe
+    menuCheckoutTelefone()
+Fim da Função iniciarCheckout
+
+Função menuCheckoutTelefone()
+    Escrever("========================================")
+    Escrever("| Finalizar Pedido - Contato |")
+    Escrever("========================================")
+    Escrever("Digite o telefone para contato:")
+    Leia telefoneCliente
+    Se comprimento(telefoneCliente) < 6 então
+        Escrever("Telefone inválido. Tente novamente.")
+        menuCheckoutTelefone()
+        Retorne
+    FimSe
+    menuCheckoutEndereco(telefoneCliente)
+Fim da Função menuCheckoutTelefone
+
+Função menuCheckoutEndereco(telefone)
+    Escrever("========================================")
+    Escrever("| Finalizar Pedido - Endereço |")
+    Escrever("========================================")
+    Escrever("Digite o endereço completo:")
+    Leia enderecoCliente
+    Se comprimento(enderecoCliente) < 6 então
+        Escrever("Endereço inválido. Tente novamente.")
+        menuCheckoutEndereco(telefone)
+        Retorne
+    FimSe
+    menuCheckoutConfirm(telefone, enderecoCliente)
+Fim da Função menuCheckoutEndereco
+
+Função menuCheckoutConfirm(telefone, endereco)
+    Escrever("========================================")
+    Escrever("| Finalizar Pedido - Confirmar |")
+    Escrever("========================================")
+    total ← calcularTotalCarrinho(carrinho)
+    Escrever("Total da Compra: R$ ", total)
+    Escrever("Telefone de Contato: ", telefone)
+    Escrever("Endereço de Entrega: ", endereco)
+    Escrever("")
+    Escrever("1 - Confirmar Pedido")
+    Escrever("2 - Cancelar Pedido")
+    Leia opcaoMenu
+    Se opcaoMenu == 1 então
+        enviarPedido(telefone, endereco)
+    Senão se opcaoMenu == 2 então
+        Escrever("Pedido cancelado. Voltando ao menu principal.")
+        menuPrincipal()
+    Senão
+        Escrever("Opção inválida.")
+        menuCheckoutConfirm(telefone, endereco)
+    FimSe
+Fim da Função menuCheckoutConfirm
+
+Função enviarPedido(telefone, endereco)
+    pedido ← registro {}
+    pedido.id ← gerarIDPedido()
+    pedido.timestamp ← DataHoraAtual()
+    pedido.items ← copia(carrinho)
+    pedido.total ← calcularTotalCarrinho(carrinho)
+    pedido.customerInfo.telefone ← telefone
+    pedido.customerInfo.endereco ← endereco
+    pedido.status ← "ABERTO"
+    pedido.codigoEntrega ← gerarCodigoEntrega()
+
+    salvarPedidoNoBanco(pedido)
+    carrinho ← []
+
+    Escrever("========================================")
+    Escrever("| Pedido Enviado! |")
+    Escrever("========================================")
+    Escrever("ID do Pedido: ", pedido.id)
+    Escrever("Código de Entrega: ", pedido.codigoEntrega)
+    Escrever("Pressione ENTER para voltar ao menu principal.")
+    menuPrincipal()
+Fim da Função enviarPedido

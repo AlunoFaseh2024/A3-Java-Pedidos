@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Painel do Funcionário</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+</head>
+<body>
+<section class="section">
+  <div class="container">
+    <h2 class="title has-text-centered">Painel do Funcionário</h2>
+
+    <div class="box">
+      <h3 class="subtitle">Pedidos Abertos</h3>
+      <p>(Exemplo estático)</p>
+      <ul>
+        <li>Pedido #12234 - Hamburguer de Bacon, Açaí 500ML</li>
+      </ul>
+    </div>
+
+    <div class="buttons">
+      <button class="button is-success">Marcar Como Concluído</button>
+      <button class="button is-danger">Cancelar Pedido</button>
+      <a href="index.html" class="button is-light">Sair</a>
+    </div>
+  </div>
+</section>
+
+<!-- Futuro:
+     - GET /api/pedidos?status=ABERTO
+     - PUT /api/pedidos/{id}/status (para alterar o estado)
+-->
+
+</body>
+</html>
