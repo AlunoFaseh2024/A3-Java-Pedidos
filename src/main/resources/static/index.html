@@ -2,25 +2,51 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Lanchonete - Menu Principal</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lanchonete - Sistema de Pedidos</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
 </head>
-<body class="has-background-light">
-
-<section class="section">
-  <div class="container">
-    <h1 class="title has-text-centered">🍔 Lanchonete - Sistema de Pedidos</h1>
-
-    <div class="buttons is-centered mt-5">
-      <a href="catalogo.html" class="button is-primary is-medium">Ver Catálogo</a>
-      <a href="carrinho.html" class="button is-link is-medium">Carrinho e Finalizar Compra</a>
-      <a href="login.html" class="button is-dark is-medium">Login Administração</a>
+<body class="bg-light">
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card shadow-lg">
+          <div class="card-header bg-primary text-white text-center">
+            <h2 class="mb-0">🍔 Lanchonete Terminal</h2>
+            <p class="mb-0 small">Sistema de Pedidos Online</p>
+          </div>
+          <div class="card-body p-5">
+            <h4 class="text-center mb-4">Menu Principal</h4>
+            
+            <div class="d-grid gap-3">
+              <a href="catalogo.html" class="btn btn-lg btn-primary">
+                📖 Catálogo de Produtos
+              </a>
+              
+              <a href="carrinho.html" class="btn btn-lg btn-success">
+                🛒 Carrinho e Finalizar Compra
+                <span id="cart-badge" class="badge bg-danger ms-2" style="display:none;">0</span>
+              </a>
+              
+              <a href="login-admin.html" class="btn btn-lg btn-secondary">
+                🔐 Login Administrativo
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-</section>
 
-<!-- Futuro: carregar status do usuário logado via API /auth/status -->
-<!-- Exemplo de endpoint: GET /api/auth/status -->
-
+  <script type="module">
+    // Atualiza badge do carrinho
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    const badge = document.getElementById("cart-badge");
+    if (cart.length > 0) {
+      badge.textContent = cart.length;
+      badge.style.display = "inline-block";
+    }
+  </script>
 </body>
 </html>

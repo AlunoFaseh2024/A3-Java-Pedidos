@@ -2,34 +2,222 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Painel do Funcionário</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel Funcionário - Lanchonete</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
 </head>
-<body>
-<section class="section">
-  <div class="container">
-    <h2 class="title has-text-centered">Painel do Funcionário</h2>
+<body class="bg-light">
+  <nav class="navbar navbar-dark bg-warning">
+    <div class="container-fluid">
+      <span class="navbar-brand">👨‍🍳 Painel do Atendente</span>
+      <div>
+        <span class="text-dark me-3 fw-bold" id="user-name"></span>
+        <button class="btn btn-dark btn-sm" id="btn-logout">Sair</button>
+      </div>
+    </div>
+  </nav>
 
-    <div class="box">
-      <h3 class="subtitle">Pedidos Abertos</h3>
-      <p>(Exemplo estático)</p>
-      <ul>
-        <li>Pedido #12234 - Hamburguer de Bacon, Açaí 500ML</li>
-      </ul>
+  <div class="container py-4">
+    <div class="row mb-4">
+      <div class="col">
+        <h3>Gerenciamento de Pedidos</h3>
+      </div>
+      <div class="col-auto">
+        <button class="btn btn-primary" onclick="atualizarPedidos()">
+          🔄 Atualizar
+        </button>
+      </div>
     </div>
 
-    <div class="buttons">
-      <button class="button is-success">Marcar Como Concluído</button>
-      <button class="button is-danger">Cancelar Pedido</button>
-      <a href="index.html" class="button is-light">Sair</a>
+    <!-- Filtros -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <div class="row g-2">
+          <div class="col-auto">
+            <button class="btn btn-sm" id="filter-todos" onclick="filtrar('TODOS')">
+              Todos
+            </button>
+          </div>
+          <div class="col-auto">
+            <button class="btn btn-sm btn-info" id="filter-aberto" onclick="filtrar('ABERTO')">
+              Abertos
+            </button>
+          </div>
+          <div class="col-auto">
+            <button class="btn btn-sm btn-warning" id="filter-preparo" onclick="filtrar('EM_PREPARO')">
+              Em Preparo
+            </button>
+          </div>
+          <div class="col-auto">
+            <button class="btn btn-sm btn-success" id="filter-concluido" onclick="filtrar('CONCLUIDO')">
+              Concluídos
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- Lista de Pedidos -->
+    <div id="lista-pedidos" class="row g-3"></div>
   </div>
-</section>
 
-<!-- Futuro:
-     - GET /api/pedidos?status=ABERTO
-     - PUT /api/pedidos/{id}/status (para alterar o estado)
--->
+  <script type="module">
+    import { listarPedidos, atualizarStatusPedido } from './js/api.js';
 
+    // Verificar autenticação
+    const usuario = JSON.parse(sessionStorage.getItem('usuario'));
+    if (!usuario || usuario.cargo !== 'ATENDENTE') {
+      window.location.href = 'login-admin.html';
+    }
+    document.getElementById('user-name').textContent = usuario.nome;
+
+    // Logout
+    document.getElementById('btn-logout').addEventListener('click', () => {
+      sessionStorage.removeItem('usuario');
+      window.location.href = 'index.html';
+    });
+
+    let filtroAtual = 'TODOS';
+    let todosOsPedidos = [];
+
+    async function carregarPedidos() {
+      try {
+        todosOsPedidos = await listarPedidos();
+        renderizarPedidos();
+      } catch (error) {
+        document.getElementById('lista-pedidos').innerHTML = `
+          <div class="col-12"><div class="alert alert-danger">Erro: ${error.message}</div></div>
+        `;
+      }
+    }
+
+    function renderizarPedidos() {
+      let pedidosFiltrados = todosOsPedidos;
+      
+      if (filtroAtual !== 'TODOS') {
+        pedidosFiltrados = todosOsPedidos.filter(p => p.status === filtroAtual);
+      }
+
+      const container = document.getElementById('lista-pedidos');
+
+      if (pedidosFiltrados.length === 0) {
+        container.innerHTML = `
+          <div class="col-12">
+            <div class="alert alert-info text-center">
+              Nenhum pedido encontrado para este filtro.
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = pedidosFiltrados.map(pedido => {
+        const statusColor = {
+          'ABERTO': 'info',
+          'EM_PREPARO': 'warning',
+          'CONCLUIDO': 'success',
+          'ENTREGUE': 'primary',
+          'CANCELADO': 'danger'
+        }[pedido.status] || 'secondary';
+
+        return `
+          <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm h-100">
+              <div class="card-header bg-${statusColor} text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong>Pedido #${pedido.id}</strong>
+                  <span class="badge bg-white text-dark">${pedido.status}</span>
+                </div>
+              </div>
+              <div class="card-body">
+                <p class="mb-2 small text-muted">
+                  ${new Date(pedido.dataHora).toLocaleString('pt-BR')}
+                </p>
+                
+                <div class="mb-3">
+                  <strong>Cliente:</strong><br>
+                  <small>${pedido.cliente?.telefone || 'N/A'}</small>
+                </div>
+
+                <div class="mb-3">
+                  <strong>Itens:</strong>
+                  <ul class="small mb-0">
+                    ${pedido.itens?.slice(0, 3).map(item => `
+                      <li>${item.quantidade}x ${item.produto?.nome || 'Item'}</li>
+                    `).join('') || '<li>Sem itens</li>'}
+                    ${pedido.itens?.length > 3 ? `<li class="text-muted">... e mais ${pedido.itens.length - 3}</li>` : ''}
+                  </ul>
+                </div>
+
+                <div class="mb-3">
+                  <strong>Total:</strong> 
+                  <span class="text-success">R$ ${pedido.total?.toFixed(2) || '0.00'}</span>
+                </div>
+
+                <div class="d-grid gap-2">
+                  ${pedido.status === 'ABERTO' ? `
+                    <button class="btn btn-warning btn-sm" onclick="mudarStatus(${pedido.id}, 'EM_PREPARO')">
+                      🍳 Iniciar Preparo
+                    </button>
+                  ` : ''}
+                  
+                  ${pedido.status === 'EM_PREPARO' ? `
+                    <button class="btn btn-success btn-sm" onclick="mudarStatus(${pedido.id}, 'CONCLUIDO')">
+                      ✅ Marcar como Concluído
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="mudarStatus(${pedido.id}, 'ABERTO')">
+                      ← Voltar para Aberto
+                    </button>
+                  ` : ''}
+                  
+                  ${pedido.status === 'CONCLUIDO' ? `
+                    <div class="alert alert-success mb-0 small">
+                      Aguardando entregador
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    window.mudarStatus = async (id, novoStatus) => {
+      try {
+        await atualizarStatusPedido(id, novoStatus);
+        await carregarPedidos();
+      } catch (error) {
+        alert('Erro ao atualizar status: ' + error.message);
+      }
+    };
+
+    window.filtrar = (status) => {
+      filtroAtual = status;
+      
+      // Atualizar botões
+      document.querySelectorAll('[id^="filter-"]').forEach(btn => {
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-outline-secondary');
+      });
+      
+      const btnAtivo = document.getElementById(`filter-${status.toLowerCase()}`);
+      if (btnAtivo) {
+        btnAtivo.classList.remove('btn-outline-secondary', 'btn-info', 'btn-warning', 'btn-success');
+        btnAtivo.classList.add('btn-primary');
+      }
+      
+      renderizarPedidos();
+    };
+
+    window.atualizarPedidos = carregarPedidos;
+
+    // Auto-atualizar a cada 30 segundos
+    setInterval(carregarPedidos, 30000);
+
+    // Carregar dados iniciais
+    carregarPedidos();
+  </script>
 </body>
 </html>
