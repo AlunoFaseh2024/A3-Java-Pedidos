@@ -51,8 +51,15 @@
 
     let etapaAtual = 1;
     let dadosCheckout = {
+      nome: '',
       telefone: '',
-      endereco: ''
+      endereco: {
+        rua: '',
+        numero: '',
+        complemento: '',
+        bairro: '',
+        cidade: ''
+      }
     };
 
     const content = document.getElementById('checkout-content');
@@ -73,62 +80,143 @@
       }
     }
 
-    function renderEtapa1() {
-      content.innerHTML = `
-        <h4 class="mb-4">📞 Contato para Entrega</h4>
-        <div class="mb-3">
-          <label for="telefone" class="form-label">Telefone (com DDD):</label>
-          <input type="tel" id="telefone" class="form-control form-control-lg" 
-                 placeholder="(32) 98877-6655" value="${dadosCheckout.telefone}">
-        </div>
-        <div class="d-grid gap-2">
-          <button class="btn btn-primary btn-lg" id="btn-proximo">
-            Próximo →
-          </button>
-          <a href="carrinho.html" class="btn btn-outline-secondary">
-            ← Voltar ao Carrinho
-          </a>
-        </div>
-      `;
+    // === Máscara e validação do telefone ===
+    function formatarTelefone(valor) {
+      valor = valor.replace(/\D/g, "");
+      if (valor.length > 11) valor = valor.slice(0, 11);
 
-      document.getElementById('btn-proximo').addEventListener('click', () => {
-        const tel = document.getElementById('telefone').value.trim();
-        if (tel.length < 10) {
-          alert('Por favor, digite um telefone válido!');
-          return;
-        }
-        dadosCheckout.telefone = tel;
-        etapaAtual = 2;
-        atualizarSteps();
-        renderEtapa2();
-      });
+      if (valor.length > 10) {
+        valor = valor.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
+      } else if (valor.length > 6) {
+        valor = valor.replace(/^(\d{2})(\d{4})(\d{0,4})$/, "($1) $2-$3");
+      } else if (valor.length > 2) {
+        valor = valor.replace(/^(\d{2})(\d{0,5})$/, "($1) $2");
+      } else {
+        valor = valor.replace(/^(\d*)$/, "($1");
+      }
+
+      return valor;
     }
 
+    function telefoneValido(tel) {
+      const apenasNumeros = tel.replace(/\D/g, "");
+      return /^(\d{10,11})$/.test(apenasNumeros);
+    }
+
+// === Etapa 1 ===
+function renderEtapa1() {
+  content.innerHTML = `
+    <h4 class="mb-4">📞 Contato para Entrega</h4>
+
+    <div class="mb-3">
+      <label for="nome" class="form-label">Nome completo:</label>
+      <input type="text" id="nome" class="form-control form-control-lg"
+             placeholder="Ex: João Silva" value="${dadosCheckout.nome}">
+      <div id="nome-feedback" class="form-text text-danger d-none">
+        Por favor, digite seu nome completo.
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="telefone" class="form-label">Telefone (com DDD):</label>
+      <input type="tel" id="telefone" class="form-control form-control-lg" 
+             placeholder="(DDD) 0000-0000" value="${dadosCheckout.telefone}">
+      <div id="telefone-feedback" class="form-text text-danger d-none">
+        Por favor, digite um telefone válido com DDD (ex: (31) 9 0000-9999)
+      </div>
+    </div>
+
+    <div class="d-grid gap-2">
+      <button class="btn btn-primary btn-lg" id="btn-proximo">Próximo →</button>
+      <a href="carrinho.html" class="btn btn-outline-secondary">← Voltar ao Carrinho</a>
+    </div>
+  `;
+
+  const nomeInput = document.getElementById('nome');
+  const nomeFeedback = document.getElementById('nome-feedback');
+  const telefoneInput = document.getElementById('telefone');
+  const telefoneFeedback = document.getElementById('telefone-feedback');
+
+  telefoneInput.addEventListener('input', () => {
+    telefoneInput.value = formatarTelefone(telefoneInput.value);
+    telefoneFeedback.classList.add('d-none');
+  });
+
+  document.getElementById('btn-proximo').addEventListener('click', () => {
+    const nome = nomeInput.value.trim();
+    const tel = telefoneInput.value.trim();
+
+    let valido = true;
+    if (!nome) {
+      nomeFeedback.classList.remove('d-none');
+      nomeInput.focus();
+      valido = false;
+    } else {
+      nomeFeedback.classList.add('d-none');
+    }
+
+    if (!telefoneValido(tel)) {
+      telefoneFeedback.classList.remove('d-none');
+      if (valido) telefoneInput.focus();
+      valido = false;
+    } else {
+      telefoneFeedback.classList.add('d-none');
+    }
+
+    if (!valido) return;
+
+    dadosCheckout.nome = nome;
+    dadosCheckout.telefone = tel;
+    etapaAtual = 2;
+    atualizarSteps();
+    renderEtapa2();
+  });
+}
+
+    // === Etapa 2 ===
     function renderEtapa2() {
+      const e = dadosCheckout.endereco;
       content.innerHTML = `
         <h4 class="mb-4">📍 Endereço de Entrega</h4>
         <div class="mb-3">
-          <label for="endereco" class="form-label">Endereço Completo:</label>
-          <textarea id="endereco" class="form-control" rows="3" 
-                    placeholder="Rua, número, bairro, complemento">${dadosCheckout.endereco}</textarea>
+          <label class="form-label">Rua:</label>
+          <input type="text" id="rua" class="form-control" value="${e.rua}" placeholder="Ex: Rua das Flores">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Número:</label>
+          <input type="text" id="numero" class="form-control" value="${e.numero}" placeholder="Ex: 123">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Complemento (opcional):</label>
+          <input type="text" id="complemento" class="form-control" value="${e.complemento}" placeholder="Apartamento, bloco, etc.">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Bairro:</label>
+          <input type="text" id="bairro" class="form-control" value="${e.bairro}" placeholder="Ex: Centro">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Cidade:</label>
+          <input type="text" id="cidade" class="form-control" value="${e.cidade}" placeholder="Ex: Belo Horizonte">
         </div>
         <div class="d-grid gap-2">
-          <button class="btn btn-primary btn-lg" id="btn-proximo">
-            Próximo →
-          </button>
-          <button class="btn btn-outline-secondary" id="btn-voltar">
-            ← Voltar
-          </button>
+          <button class="btn btn-primary btn-lg" id="btn-proximo">Próximo →</button>
+          <button class="btn btn-outline-secondary" id="btn-voltar">← Voltar</button>
         </div>
       `;
 
       document.getElementById('btn-proximo').addEventListener('click', () => {
-        const end = document.getElementById('endereco').value.trim();
-        if (end.length < 10) {
-          alert('Por favor, digite um endereço válido!');
+        const rua = document.getElementById('rua').value.trim();
+        const numero = document.getElementById('numero').value.trim();
+        const complemento = document.getElementById('complemento').value.trim();
+        const bairro = document.getElementById('bairro').value.trim();
+        const cidade = document.getElementById('cidade').value.trim();
+
+        if (!rua || !numero || !bairro || !cidade) {
+          alert('Por favor, preencha todos os campos obrigatórios (Rua, Número, Bairro e Cidade).');
           return;
         }
-        dadosCheckout.endereco = end;
+
+        dadosCheckout.endereco = { rua, numero, complemento, bairro, cidade };
         etapaAtual = 3;
         atualizarSteps();
         renderEtapa3();
@@ -141,16 +229,18 @@
       });
     }
 
+    // === Etapa 3 ===
     function renderEtapa3() {
       const cart = JSON.parse(localStorage.getItem("cart") || "[]");
       const total = cart.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
 
+      const e = dadosCheckout.endereco;
+
       content.innerHTML = `
         <h4 class="mb-4">✅ Confirmar Pedido</h4>
-        
         <div class="alert alert-info">
           <strong>Telefone:</strong> ${dadosCheckout.telefone}<br>
-          <strong>Endereço:</strong> ${dadosCheckout.endereco}
+          <strong>Endereço:</strong> ${e.rua}, ${e.numero}${e.complemento ? ', ' + e.complemento : ''} - ${e.bairro}, ${e.cidade}
         </div>
 
         <h6 class="mb-3">Itens do Pedido:</h6>
@@ -170,12 +260,8 @@
         </div>
 
         <div class="d-grid gap-2">
-          <button class="btn btn-success btn-lg" id="btn-confirmar">
-            🎉 Confirmar Pedido
-          </button>
-          <button class="btn btn-outline-secondary" id="btn-voltar">
-            ← Voltar
-          </button>
+          <button class="btn btn-success btn-lg" id="btn-confirmar">🎉 Confirmar Pedido</button>
+          <button class="btn btn-outline-secondary" id="btn-voltar">← Voltar</button>
         </div>
       `;
 
@@ -189,24 +275,27 @@
 
     async function finalizarPedido() {
       const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-      
-      const pedido = {
-        cliente: {
-          telefone: dadosCheckout.telefone,
-          endereco: {
-            rua: dadosCheckout.endereco.split(',')[0] || dadosCheckout.endereco,
-            numero: '0',
-            bairro: 'N/A',
-            cidade: 'N/A',
-            complemento: dadosCheckout.endereco
-          }
-        },
-        itens: cart.map(item => ({
-          produto: { id: item.produtoId },
-          quantidade: item.quantidade,
-          precoUnitario: item.preco
-        }))
-      };
+      const e = dadosCheckout.endereco;
+
+    const pedido = {
+      cliente: {
+        nome: dadosCheckout.nome,
+        telefone: dadosCheckout.telefone,
+        endereco: {
+          rua: e.rua,
+          numero: e.numero,
+          bairro: e.bairro,
+          cidade: e.cidade,
+          complemento: e.complemento || ''
+        }
+      },
+      itens: cart.map(item => ({
+        produto: { id: item.produtoId },
+        quantidade: item.quantidade,
+        precoUnitario: item.preco
+      }))
+    };
+
 
       try {
         content.innerHTML = `
@@ -217,7 +306,6 @@
         `;
 
         const resultado = await criarPedido(pedido);
-        
         localStorage.setItem('pedidoConfirmado', JSON.stringify(resultado));
         localStorage.removeItem('cart');
         window.location.href = 'pedido-confirmado.html';
