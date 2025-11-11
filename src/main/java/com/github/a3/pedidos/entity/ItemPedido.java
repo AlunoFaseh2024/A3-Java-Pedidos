@@ -1,5 +1,7 @@
 package com.github.a3.pedidos.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,10 +18,12 @@ public class ItemPedido {
 
     @ManyToOne
     @JoinColumn(name = "pedido_id")
+    @JsonBackReference
     private Pedido pedido;
 
     @ManyToOne
     @JoinColumn(name = "produto_id")
+    @JsonIgnoreProperties({"categoria"}) // Evita serializar a categoria dentro do produto
     private Produto produto;
 
     private Integer quantidade;

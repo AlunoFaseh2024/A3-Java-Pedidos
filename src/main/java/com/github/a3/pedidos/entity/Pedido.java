@@ -1,5 +1,7 @@
 package com.github.a3.pedidos.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.github.a3.pedidos.entity.enums.StatusPedido;
 import jakarta.persistence.*;
 import lombok.*;
@@ -26,9 +28,11 @@ public class Pedido {
 
     @ManyToOne
     @JoinColumn(name = "cliente_id")
+    @JsonIgnoreProperties({"endereco"}) // Evita serializar o endereço dentro do cliente
     private Cliente cliente;
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<ItemPedido> itens;
 
     private Double total;

@@ -1,5 +1,6 @@
 package com.github.a3.pedidos.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,6 +21,7 @@ public class Produto {
 
     @ManyToOne
     @JoinColumn(name = "categoria_id")
+    @JsonIgnoreProperties({"produtos"}) // Evita serializar os produtos dentro da categoria
     private Categoria categoria;
 
     // Exemplo: “P”, “M”, “G”, “1L” — opcional

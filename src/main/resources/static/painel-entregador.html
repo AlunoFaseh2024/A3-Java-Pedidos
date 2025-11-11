@@ -95,7 +95,23 @@
           return;
         }
 
-        container.innerHTML = pedidosConcluidos.map(pedido => `
+        container.innerHTML = pedidosConcluidos.map(pedido => {
+          // Formatar endereço completo
+          const endereco = pedido.cliente?.endereco;
+          let enderecoCompleto = 'Endereço não informado';
+          
+          if (endereco) {
+            const partes = [];
+            if (endereco.rua) partes.push(endereco.rua);
+            if (endereco.numero) partes.push(endereco.numero);
+            if (endereco.complemento) partes.push(endereco.complemento);
+            if (endereco.bairro) partes.push(endereco.bairro);
+            if (endereco.cidade) partes.push(endereco.cidade);
+            
+            enderecoCompleto = partes.join(', ');
+          }
+
+          return `
           <div class="col-md-6 col-lg-4">
             <div class="card shadow h-100">
               <div class="card-header bg-success text-white">
@@ -109,16 +125,18 @@
 
                 <div class="mb-3">
                   <strong>📞 Cliente:</strong><br>
-                  <a href="tel:${pedido.cliente?.telefone}" class="btn btn-sm btn-outline-primary">
-                    ${pedido.cliente?.telefone || 'N/A'}
-                  </a>
+                  <div class="mt-1">
+                    <strong>${pedido.cliente?.nome || 'Cliente'}</strong><br>
+                    <a href="tel:${pedido.cliente?.telefone || ''}" class="btn btn-sm btn-outline-primary mt-1">
+                      ${pedido.cliente?.telefone || 'Telefone não informado'}
+                    </a>
+                  </div>
                 </div>
 
                 <div class="mb-3">
                   <strong>📍 Endereço:</strong><br>
                   <small class="text-muted">
-                    ${pedido.cliente?.endereco?.complemento || 
-                      `${pedido.cliente?.endereco?.rua || ''}, ${pedido.cliente?.endereco?.numero || ''}`}
+                    ${enderecoCompleto}
                   </small>
                 </div>
 
@@ -135,7 +153,7 @@
               </div>
             </div>
           </div>
-        `).join('');
+        `}).join('');
 
       } catch (error) {
         container.innerHTML = `
