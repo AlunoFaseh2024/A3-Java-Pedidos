@@ -23,7 +23,7 @@ public class ItemPedido {
 
     @ManyToOne
     @JoinColumn(name = "produto_id")
-    @JsonIgnoreProperties({"categoria"}) // Evita serializar a categoria dentro do produto
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) // Permite serialização do produto
     private Produto produto;
 
     private Integer quantidade;

@@ -1,5 +1,6 @@
 package com.github.a3.pedidos.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,5 +20,6 @@ public class Cliente {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "endereco_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) // Permite serialização do endereço
     private Endereco endereco;
 }

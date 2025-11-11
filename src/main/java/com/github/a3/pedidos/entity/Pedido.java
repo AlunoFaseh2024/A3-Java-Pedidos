@@ -28,7 +28,7 @@ public class Pedido {
 
     @ManyToOne
     @JoinColumn(name = "cliente_id")
-    @JsonIgnoreProperties({"endereco"}) // Evita serializar o endereço dentro do cliente
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) // Permite serialização completa do cliente
     private Cliente cliente;
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)

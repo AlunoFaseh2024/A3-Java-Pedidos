@@ -32,11 +32,12 @@ public class PedidoService {
     private ProdutoRepository produtoRepository;
 
     public List<Pedido> listarTodos() {
-        return pedidoRepository.findAll();
+        return pedidoRepository.findAllWithDetails(); // Usar o método com JOIN FETCH
     }
 
     public Optional<Pedido> buscarPorId(Long id) {
-        return pedidoRepository.findById(id);
+        Pedido pedido = pedidoRepository.findByIdWithDetails(id);
+        return Optional.ofNullable(pedido);
     }
 
     @Transactional
