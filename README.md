@@ -20,7 +20,7 @@ Para usar o sistema, é necessário o __VSCode__ com o pack de extensões para J
 
 7 - Espere um tempo, e para saber se funcionou, abra o Swagger com esse link: [http://localhost:8080/swagger-ui/index.html ](http://localhost:8080/swagger-ui/index.html )
 
-8 - A API já está funcionando, mas caso queira usar a interface WEB, acesse o diretório _A3-Java-Pedidos\src\main\resources\static_ pelo terminal, e execute o servidor Python com o comando __python -m http.server__, caso você não tenha Python instalado em seu computador, use o comando __jwebserver -p 8000 -b 127.0.0.1__. Depois abra no navegador: [http://localhost:8000](http://localhost:8000)
+8 - A API já está funcionando, mas caso queira usar a interface WEB, acesse o diretório _A3-Java-Pedidos\src\main\resources\static_ pelo terminal, e execute o servidor Python com o comando __python -m http.server__ , caso você não tenha Python instalado em seu computador, use o comando __jwebserver -p 8000 -b 127.0.0.1__ . Depois abra no navegador: [http://localhost:8000](http://localhost:8000)
 
 ## Requisitos do projeto
 
@@ -54,7 +54,7 @@ Para usar o sistema, é necessário o __VSCode__ com o pack de extensões para J
 
 ## Gestão de projeto
 
-Utilizamos o [_Canva_](https://www.canva.com/design/DAG2jIkMvb4/O9Bmx-5vT2mXhxYhOZAezQ/view?utm_content=DAG2jIkMvb4&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h4a1eeda631) para modelar o básico do sistema, mas a maior parte das decisões foi tomada pelo _WhatsApp_ e durante reuniões no Jitsi _Meet_.
+Utilizamos o [_Canva_](https://www.canva.com/design/DAG2jIkMvb4/O9Bmx-5vT2mXhxYhOZAezQ/view?utm_content=DAG2jIkMvb4&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h4a1eeda631) para modelar o básico do sistema, mas a maior parte das decisões foi tomada pelo _WhatsApp_ e durante reuniões no Jitsi _Meet_, também usamos o [Trello](https://zupimages.net/up/25/47/c0zi.png), mas bem pouco.
 
 ## Gravação do funcionamento
 
