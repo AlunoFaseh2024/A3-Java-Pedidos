@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.github.a3.pedidos.entity.Cliente;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import java.util.List;
 
 public interface ClienteRepository extends JpaRepository<Cliente, Long> {
     
