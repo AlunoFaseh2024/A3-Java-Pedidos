@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Adicionar Produto - Lanchonete</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-dark bg-primary">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="index.html">🍔 Lanchonete</a>
+      <a href="carrinho.html" class="btn btn-light btn-sm">🛒 Carrinho</a>
+    </div>
+  </nav>
+
+  <div class="container py-4">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="index.html">Início</a></li>
+        <li class="breadcrumb-item"><a href="catalogo.html">Catálogo</a></li>
+        <li class="breadcrumb-item active">Produto</li>
+      </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card shadow">
+          <div class="card-body" id="produto-detalhes">
+            <div class="text-center">
+              <div class="spinner-border text-primary" role="status"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { buscarProdutoPorId } from './js/api.js';
+
+    const produtoId = localStorage.getItem('produtoSelecionado');
+    const container = document.getElementById('produto-detalhes');
+
+    if (!produtoId) {
+      window.location.href = 'catalogo.html';
+    }
+
+    async function carregarProduto() {
+      try {
+        const produto = await buscarProdutoPorId(produtoId);
+
+        container.innerHTML = `
+          <h3 class="mb-3">${produto.nome}</h3>
+          <p class="text-muted">${produto.descricao || ''}</p>
+          
+          ${produto.tamanho ? `
+            <div class="alert alert-info">
+              <strong>Tamanho:</strong> ${produto.tamanho}
+            </div>
+          ` : ''}
+
+          <div class="mb-4">
+            <h4 class="text-success">R$ ${produto.preco.toFixed(2).replace('.', ',')}</h4>
+          </div>
+
+          <div class="mb-4">
+            <label for="quantidade" class="form-label fw-bold">Quantidade:</label>
+            <input type="number" id="quantidade" class="form-control form-control-lg" 
+                   min="1" max="99" value="1">
+          </div>
+
+          <div class="d-grid gap-2">
+            <button class="btn btn-success btn-lg" id="btn-adicionar">
+              ✅ Adicionar ao Carrinho
+            </button>
+            <a href="catalogo.html" class="btn btn-outline-secondary">
+              ← Voltar ao Catálogo
+            </a>
+          </div>
+        `;
+
+        document.getElementById('btn-adicionar').addEventListener('click', () => {
+          adicionarAoCarrinho(produto);
+        });
+
+      } catch (error) {
+        container.innerHTML = `
+          <div class="alert alert-danger">
+            Erro ao carregar produto: ${error.message}
+          </div>
+          <a href="catalogo.html" class="btn btn-primary">Voltar ao Catálogo</a>
+        `;
+      }
+    }
+
+    function adicionarAoCarrinho(produto) {
+      const quantidade = parseInt(document.getElementById('quantidade').value);
+      
+      if (quantidade < 1) {
+        alert('Quantidade inválida!');
+        return;
+      }
+
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      
+      cart.push({
+        produtoId: produto.id,
+        nome: produto.nome,
+        tamanho: produto.tamanho || null,
+        preco: produto.preco,
+        quantidade: quantidade
+      });
+
+      localStorage.setItem("cart", JSON.stringify(cart));
+      
+      if (confirm('Produto adicionado! Ir para o carrinho?')) {
+        window.location.href = 'carrinho.html';
+      } else {
+        window.location.href = 'catalogo.html';
+      }
+    }
+
+    carregarProduto();
+  </script>
+</body>
+</html>

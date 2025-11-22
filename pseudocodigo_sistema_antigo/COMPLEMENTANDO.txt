@@ -1,0 +1,87 @@
+# o sistema
+o sistema é um sistema de gerenciamento de pedidos (delivery) de uma lanchonete.
+O sistema usa Java SpringBoot.
+o sistema funciona via console.
+o sistema usa um banco de dados.
+Nem tudo escrito sobre o sistema nesse texto reflete a versão final dele, apenas é um guia.
+
+Em SISTEMA.TXT:
+aqui está o pseudocódigo do sistema, e é uma versão mais atual do sistema do que o EXEMPLO_INTERFACE.txt e xemplo_funcionamento_interface.html.
+
+Em EXEMPLO_INTERFACE.txt:
+está os passos e interfaces do sistema.
+
+Em exemplo_funcionamento_interface.html:
+está um exemplo do funcionamento do sistema, feito em base do EXEMPLO_INTERFACE.txt.
+
+Em COMPLEMENTANDO.txt:
+está informações adicionais sobre o sistema.
+
+# 4 pessoas diferentes interagem com o sistema:
+
+Cliente;
+Funcionário do atendimento;
+Gerente;
+Entregador;
+
+O CLIENTE: 
+navega pelo catálogo, 
+adiciona itens ao carrinho, 
+insere endereço e número de telefone para contato, 
+recebe código de entrega ao finalizar compra.
+
+O FUNCIONÁRIO: vê pedidos abertos, 
+altera estado do pedido.
+
+O GERENTE: cadastra, edita e apaga produtos e categórias, 
+cria e apaga funcionários,
+vê funcionários existentes,
+vê pedidos concluídos,
+pode alterar o estado do pedido de concluído para entregue sem o código de entrega.
+
+O ENTREGADOR: vê pedidos concluídos, 
+pode alterar o estado do pedido de concluído para entregue ao informar o código de entrega.
+
+# produtos
+
+Hamburgueres, salgados e lanches, bebidas e doces possuem preço único:
+exemplo de tabela DB:
+id_{hamburguer,salgado ou ...}, nome, descricao, preco;
+
+Pizzas e açaí possuem tamanhos diferentes:
+pizza: P, M, G, GG
+açaí: 300mL, 500mL, 750mL, 1L
+exemplo de tabela DB:
+id_{pizza, acai}, nome, descricao, tamanho, preco;
+exemplo de tabela com dados:
+|id_pizza | nome | descricao | tamanho | preco|
+|1 | pizza mussarela | pizza com queijo mussarela, presento e molho de tomate | pequena | R$ 16,00|
+|2 | pizza mussarela | pizza com queijo mussarela, presento e molho de tomate | grande | R$ 30,00|
+|3 | pizza calabresa | pizza com calabresa, queijo mussarela, presento e molho de tomate | média | R$ 22,00|
+
+Na tabela existe 2 pizza mussarela, mas na hora de exibir isso para o cliente, deverá ser exibido de forma similar:
+1 - pizza mussarela
+	pizza com queijo mussarela, presento e molho de tomate
+	
+2 - pizza calabresa
+	pizza com calabresa, queijo mussarela, presento e molho de tomate
+	
+Com um número para que o usuário possa selecionar, após selecionar, por exemplo 1, ele verá o preço dos tamanhos
+	pizza mussarela
+	pizza com queijo mussarela, presento e molho de tomate
+	1 - pequena | R$ 16,00
+	2 - grande | R$ 30,00
+
+# banco de dados
+Tabelas:
+hamburguers
+pizzas
+salgadosELanches
+acai
+bebidas
+doces
+outros
+pedidos
+funcionarios
+
+# classes

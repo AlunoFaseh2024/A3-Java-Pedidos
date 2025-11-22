@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação de Pedidos | Terminal Style</title>
+    <!-- Carregando Tailwind CSS para Estilização Rápida -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilização para simular um terminal */
+        .console-container {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background-color: #1e1e1e; /* Fundo escuro */
+            color: #00ff00; /* Texto verde neon */
+            border-radius: 0.5rem;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            width: 100%;
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .output-area {
+            flex-grow: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            white-space: pre-wrap; /* Preserva formatação de texto simulando o console */
+            border-bottom: 1px solid #005500;
+        }
+
+        .input-prompt {
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-field {
+            background-color: transparent;
+            border: none;
+            color: #fff; /* O texto digitado será branco para maior contraste */
+            outline: none;
+            flex-grow: 1;
+            font-size: 1rem;
+        }
+
+        /* Classes de utilidade para o texto */
+        .text-green { color: #00ff00; }
+        .text-yellow { color: #ffff00; }
+        .text-red { color: #ff0000; }
+        .text-white { color: #ffffff; }
+
+        /* Scrollbar styling for a console feel */
+        .output-area::-webkit-scrollbar {
+            width: 8px;
+        }
+        .output-area::-webkit-scrollbar-track {
+            background: #282828;
+        }
+        .output-area::-webkit-scrollbar-thumb {
+            background: #008800;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 flex items-center justify-center min-h-screen p-4">
+
+    <div id="console-container" class="console-container">
+        <!-- Área de Output (Simulação do Console) -->
+        <div id="output-area" class="output-area">
+            <!-- Conteúdo gerado via JS -->
+        </div>
+
+        <!-- Área de Input -->
+        <div class="input-prompt">
+            <span id="prompt-prefix" class="text-green">> </span>
+            <input type="text" id="input-field" class="input-field" autofocus placeholder="Digite sua opção ou informação...">
+        </div>
+    </div>
+
+    <script>
+        // --- Configuração e Dados de Mock ---
+        const outputArea = document.getElementById('output-area');
+        const inputField = document.getElementById('input-field');
+        const promptPrefix = document.getElementById('prompt-prefix');
+
+        // Definição dos tamanhos de Açaí para reuso
+        const acaiSizes = [
+            { size: '200ML', price: 8.00 },
+            { size: '300ML', price: 10.00 },
+            { size: '500ML', price: 15.00 },
+            { size: '750ML', price: 20.00 },
+            { size: '1L', price: 30.00 },
+            { size: '2L', price: 50.00 },
+        ];
+
+        const menuData = {
+            1: { name: "Hamburguers", items: [
+                { id: 'H1', name: "Hamburguer Simples", desc: "Pão, carne de boi, alface, tomate, queijo mussarela", price: 12.00 },
+                { id: 'H2', name: "Hamburguer de Bacon", desc: "Pão, carne de boi, alface, tomate, queijo parmesão, bacon, cebola", price: 16.00 },
+                { id: 'H3', name: "Hamburguer X-Frango", desc: "Pão, carne de frango, alface, tomate, queijo cheddar, frango desfiado, molho de catupiry", price: 15.00 },
+                { id: 'H4', name: "Hamburguer Gourmet", desc: "Pão brioche, blend de carnes, queijo coalho, geleia de pimenta", price: 25.00 },
+                { id: 'H5', name: "Veggie Burger", desc: "Pão integral, burger de grão de bico, rúcula, tomate seco", price: 19.00 },
+            ]},
+            2: { name: "Pizzas", items: [
+                { id: 'P1', name: "Pizza Mista", desc: "Massa, queijo, presunto, tomate", price: 35.00 },
+                { id: 'P2', name: "Pizza Calabresa", desc: "Massa, queijo mussarela, calabresa fatiada, cebola", price: 38.00 },
+                { id: 'P3', name: "Pizza Quatro Queijos", desc: "Mussarela, provolone, parmesão e catupiry", price: 42.00 },
+                { id: 'P4', name: "Pizza Portuguesa", desc: "Mussarela, presunto, ovos, cebola e azeitona", price: 45.00 },
+            ]},
+            3: { name: "Açaí", items: [
+                { id: 'A1', name: "Açaí Comum", desc: "Açaí, banana, leite em pó e leite condensado", isSized: true, sizes: acaiSizes },
+                { id: 'A2', name: "Açaí com Morango e Chocolate", desc: "Açaí, morango, leite em pó e chocolate", isSized: true, sizes: acaiSizes },
+                { id: 'A3', name: "Açaí com Pistache", desc: "Açaí, banana, pistache, leite em pó e leite condensado", isSized: true, sizes: acaiSizes },
+                { id: 'A4', name: "Açaí Maluco", desc: "Açaí, banana, morango, pistache, leite em pó, chocolate e leite condensado", isSized: true, sizes: acaiSizes },
+                { id: 'A5', name: "Açaí Fitness", desc: "Açaí puro, granola, mel e semente de chia", isSized: true, sizes: acaiSizes },
+            ]},
+            4: { name: "Salgados", items: [
+                { id: 'S1', name: "Coxinha", desc: "Frango com catupiry", price: 6.00 },
+                { id: 'S2', name: "Esfiha de Carne", desc: "Massa macia com recheio de carne moída temperada", price: 7.50 },
+                { id: 'S3', name: "Empada de Palmito", desc: "Massa podre com recheio cremoso de palmito", price: 8.00 },
+                { id: 'S4', name: "Kibe Frito", desc: "Carne moída, trigo e temperos árabes", price: 7.00 },
+            ]},
+            5: { name: "Refrigerantes", items: [
+                { id: 'R1', name: "Coca-cola Lata", desc: "350ml", price: 7.00 },
+                { id: 'R2', name: "Guaraná 2L", desc: "Refrigerante de guaraná", price: 12.00 },
+                { id: 'R3', name: "Água sem Gás", desc: "500ml", price: 4.00 },
+                { id: 'R4', name: "Suco de Laranja Natural", desc: "300ml, feito na hora", price: 8.00 },
+            ]},
+            6: { name: "Doces", items: [
+                { id: 'D1', name: "Brigadeiro", desc: "Chocolate", price: 4.00 },
+                { id: 'D2', name: "Bolo de Cenoura", desc: "Fatia com cobertura de chocolate", price: 10.00 },
+                { id: 'D3', name: "Pudim de Leite", desc: "Sobremesa clássica e cremosa", price: 9.00 },
+                { id: 'D4', name: "Torta Holandesa", desc: "Fatia de torta gelada com biscoito e ganache", price: 12.00 },
+            ]},
+        };
+
+        const mockOrders = [
+            {
+                id: 12234,
+                timestamp: new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+                status: "ABERTO", // ABERTO, EM_PREPARO, CONCLUIDO, CANCELADO
+                customerInfo: { phone: '(32)96611-2233', address: 'Bairro Inexistente, Rua dos trouxas, número 0' },
+                items: [
+                    { name: "Hamburguer de Bacon", price: 16.00, qty: 1, size: null },
+                    { name: "Açaí Comum 500ML", price: 15.00, qty: 1, size: '500ML' },
+                ]
+            }
+        ];
+
+        const adminUser = { id: 'H718', pass: '934123', name: 'João' };
+
+        let orderCounter = 12235;
+
+        // --- Estado da Aplicação ---
+        let appState = {
+            screen: 'MENU_PRINCIPAL', // Tela atual
+            userRole: 'CLIENTE', // CLIENTE ou FUNCIONARIO (logado)
+            cart: [], // Itens no carrinho
+            tempSelection: {}, // Objeto para seleção multi-passo (item, tamanho, quantidade)
+            checkoutInfo: { phone: '', address: '' },
+            loginAttempt: { step: 0 }, // 0: menu, 1: id, 2: pass
+            currentOrders: [...mockOrders],
+            selectedOrderId: null,
+            // Variáveis de fluxo para o catálogo
+            currentCategory: null,
+            currentItem: null,
+        };
+
+        // --- Funções Auxiliares de UI ---
+        function clearAndPrint(text) {
+            outputArea.innerHTML = `<pre>${text}</pre>`;
+        }
+
+        function appendLine(line) {
+            outputArea.querySelector('pre').innerHTML += `\n${line}`;
+        }
+
+        function formatPrice(price) {
+            return `R$ ${price.toFixed(2).replace('.', ',')}`;
+        }
+
+        function getCartTotal() {
+            return appState.cart.reduce((total, item) => total + (item.price * item.qty), 0);
+        }
+
+        function resetPromptToClient() {
+             inputField.type = 'text';
+             promptPrefix.innerHTML = `<span class="text-green">CLIENTE> </span>`;
+        }
+        function setInputPrompt() {
+             inputField.type = 'text';
+             promptPrefix.innerHTML = `<span class="text-green">INPUT> </span>`;
+        }
+
+        // --- Funções de Renderização de Telas ---
+
+        function renderMenuPrincipal() {
+            appState.screen = 'MENU_PRINCIPAL';
+            appState.userRole = 'CLIENTE';
+            resetPromptToClient();
+            clearAndPrint(
+                "========================================\n" +
+                "| Lanchonete Terminal | Menu Principal |\n" +
+                "========================================\n\n" +
+                "Menu:\n\n" +
+                "\t1 - Catálogo\n" +
+                "\t2 - Carrinho E Finalizar Compra\n" +
+                "\t3 - Login Administração\n"
+            );
+        }
+
+        function renderCategorias() {
+            appState.screen = 'CATALOGO_CATEGORIAS';
+            resetPromptToClient();
+            let output =
+                "========================================\n" +
+                "| Catálogo de Produtos - Categorias |\n" +
+                "========================================\n\n" +
+                "São exibidas as categorias disponíveis.\n";
+
+            // Garante que as categorias são exibidas na ordem correta (1 a 6)
+            Object.keys(menuData).sort((a, b) => a - b).forEach(key => {
+                output += `\t${key} - ${menuData[key].name}\n`;
+            });
+            output += "\t0 - Voltar\n";
+
+            clearAndPrint(output);
+            appState.currentCategory = null; // Limpa a categoria atual
+        }
+
+        function renderItens(categoryId) {
+            appState.screen = 'CATALOGO_ITENS';
+            appState.currentCategory = categoryId;
+            resetPromptToClient();
+            const category = menuData[categoryId];
+
+            let output =
+                `========================================\n` +
+                `| Catálogo - ${category.name} |\n` +
+                `========================================\n\n` +
+                `São exibidos os itens disponíveis na categoria ${category.name}.\n`;
+
+            category.items.forEach((item, index) => {
+                const itemNumber = index + 1;
+                output += `\n\t${itemNumber} - ${item.name} | ${item.price ? formatPrice(item.price) : 'Preço por Tamanho'}\n`;
+                output += `\t\t\t${item.desc}\n`;
+            });
+
+            output += "\n\t0 - Voltar\n";
+            clearAndPrint(output);
+        }
+
+        function renderCarrinho() {
+            appState.screen = 'CARRINHO_VISUALIZAR';
+            resetPromptToClient();
+            let output =
+                "========================================\n" +
+                "| Carrinho E Finalização |\n" +
+                "========================================\n";
+
+            if (appState.cart.length === 0) {
+                output += "\nO carrinho está vazio. Não há itens para efetuar a compra.\n";
+            } else {
+                output += "\nItens no carrinho:\n";
+                appState.cart.forEach(item => {
+                    // Garante que o nome do produto com tamanho apareça corretamente
+                    const itemName = item.size ? `${item.name} ${item.size}` : item.name;
+                    const priceDisplay = formatPrice(item.price);
+                    output += `\t${item.qty}x ${itemName} | ${priceDisplay}\n`;
+                });
+                output += `\n\tTOTAL: ${formatPrice(getCartTotal())} \n`;
+            }
+
+            output += "\n\n\t1 - Efetuar Pedido\n";
+            output += "\t2 - Remover Item\n";
+            output += "\t0 - Voltar Ao Menu\n";
+
+            clearAndPrint(output);
+        }
+
+        function renderRemoverItem() {
+            appState.screen = 'CARRINHO_REMOVER';
+            resetPromptToClient();
+            let output =
+                "========================================\n" +
+                "| Remover Item Do Carrinho |\n" +
+                "========================================\n\n";
+
+            if (appState.cart.length === 0) {
+                output += "Não há itens para remover.\n\n\t0 - Voltar\n";
+                clearAndPrint(output);
+                return;
+            }
+
+            output += "Selecione o item para remover:\n";
+            appState.cart.forEach((item, index) => {
+                const itemNumber = index + 1;
+                const itemName = item.size ? `${item.name} ${item.size}` : item.name;
+                const priceDisplay = formatPrice(item.price);
+                output += `\t${itemNumber} - ${item.qty}x ${itemName} | ${priceDisplay}\n`;
+            });
+
+            output += "\n\tDigite o número do item a ser removido (0 para Cancelar).\n";
+            clearAndPrint(output);
+        }
+
+        function renderSelectTamanho(item) {
+            appState.screen = 'SELECIONAR_TAMANHO';
+            resetPromptToClient();
+            appState.tempSelection.item = item;
+            let output =
+                `========================================\n` +
+                `| Selecionar Tamanho - ${item.name} |\n` +
+                `========================================\n\n` +
+                `Selecione o tamanho:\n`;
+
+            item.sizes.forEach((size, index) => {
+                const sizeNumber = index + 1;
+                output += `\t${sizeNumber} - ${size.size} \t| ${formatPrice(size.price)}\n`;
+            });
+
+            clearAndPrint(output);
+        }
+
+        function renderSelectQuantidade() {
+            appState.screen = 'SELECIONAR_QUANTIDADE';
+            resetPromptToClient();
+            clearAndPrint(
+                "========================================\n" +
+                "| Selecionar Quantidade |\n" +
+                "========================================\n\n" +
+                "Digite a quantidade:\n"
+            );
+        }
+
+        function renderConfirmacao(qty, name, price, size = null) {
+            appState.screen = 'CONFIRMAR_ITEM';
+            resetPromptToClient();
+            const priceDisplay = size ? `${size}` : '';
+
+            clearAndPrint(
+                "========================================\n" +
+                "| Confirmação de Item |\n" +
+                "========================================\n\n" +
+                `Gostaria de adicionar ${qty} ${name} ${priceDisplay} ao carrinho?\n` +
+                `\n\t1 - Sim\n` +
+                `\t2 - Não\n`
+            );
+        }
+
+        function renderItemAdicionado() {
+            appState.screen = 'ITEM_ADICIONADO';
+            resetPromptToClient();
+            clearAndPrint(
+                "========================================\n" +
+                "| Sucesso! |\n" +
+                "========================================\n\n" +
+                "Item adicionado ao carrinho.\n\n" +
+                "\t1 - Voltar Para O Catálogo\n" +
+                "\t2 - Voltar Para As Categorias\n" +
+                "\t3 - Ir Para O Carrinho\n"
+            );
+        }
+
+        function renderCheckout(step) {
+            if (step === 1) {
+                appState.screen = 'CHECKOUT_PHONE';
+                setInputPrompt(); // Usar INPUT> para telefone
+                clearAndPrint(
+                    "========================================\n" +
+                    "| Finalizar Pedido - Contato |\n" +
+                    "========================================\n\n" +
+                    "Digite o seu telefone para contato (Ex: 32988776655):\n"
+                );
+            } else if (step === 2) {
+                appState.screen = 'CHECKOUT_ADDRESS';
+                setInputPrompt(); // Usar INPUT> para endereço
+                clearAndPrint(
+                    "========================================\n" +
+                    "| Finalizar Pedido - Endereço |\n" +
+                    "========================================\n\n" +
+                    "Digite o seu endereço completo (Ex: Rua A, 123, Bairro X):\n"
+                );
+            } else if (step === 3) {
+                appState.screen = 'CHECKOUT_CONFIRM';
+                resetPromptToClient();
+                const total = getCartTotal();
+                clearAndPrint(
+                    "========================================\n" +
+                    "| Finalizar Pedido - Confirmar |\n" +
+                    "========================================\n\n" +
+                    `Total da Compra: ${formatPrice(total)}\n` +
+                    `Telefone de Contato: ${appState.checkoutInfo.phone}\n` +
+                    `Endereço de Entrega: ${appState.checkoutInfo.address}\n\n` +
+                    "Confirme seu pedido:\n" +
+                    "\t1 - Confirmar Pedido\n" +
+                    "\t2 - Cancelar Pedido\n"
+                );
+            }
+        }
+
+        function renderPedidoEnviado() {
+            appState.screen = 'PEDIDO_ENVIADO';
+            resetPromptToClient();
+            clearAndPrint(
+                "========================================\n" +
+                "| Pedido Enviado! |\n" +
+                "========================================\n\n" +
+                "Seu pedido foi enviado com sucesso!\n\n" +
+                "\tPressione ENTER para Voltar ao Menu Principal.\n"
+            );
+            // Simula o envio do pedido para o sistema
+            const now = new Date();
+            const newOrder = {
+                id: orderCounter++,
+                timestamp: now.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+                status: "ABERTO",
+                customerInfo: { ...appState.checkoutInfo },
+                items: [...appState.cart],
+            };
+            appState.currentOrders.push(newOrder);
+            appState.cart = []; // Limpa o carrinho
+            appState.checkoutInfo = { phone: '', address: '' };
+        }
+
+        // --- Funções de Admin ---
+        function renderLoginAdmMenu() {
+            appState.screen = 'LOGIN_ADM_MENU';
+            resetPromptToClient();
+            clearAndPrint(
+                "========================================\n" +
+                "| Login Administrativo |\n" +
+                "========================================\n\n" +
+                "\t1 - Fazer Login\n" +
+                "\t0 - Voltar\n"
+            );
+        }
+
+        function renderLoginAdmInput() {
+            appState.screen = 'LOGIN_ADM_INPUT';
+            let output = "========================================\n" +
+                         "| Login Administrativo |\n" +
+                         "========================================\n\n";
+
+            if (appState.loginAttempt.step === 1) {
+                output += "Digite a sua ID:\n";
+                promptPrefix.innerHTML = `<span class="text-yellow">ID> </span>`;
+                inputField.type = 'text';
+            } else if (appState.loginAttempt.step === 2) {
+                output += `ID: ${adminUser.id}\nDigite a sua senha:\n`;
+                promptPrefix.innerHTML = `<span class="text-yellow">SENHA> </span>`;
+                inputField.type = 'password';
+            }
+            clearAndPrint(output);
+        }
+
+        function renderPainelAdm() {
+            appState.screen = 'PAINEL_ADM';
+            promptPrefix.innerHTML = `<span class="text-yellow">ADM(${adminUser.id})> </span>`;
+            inputField.type = 'text';
+
+            clearAndPrint(
+                "========================================\n" +
+                "| Painel de Administração |\n" +
+                "========================================\n\n" +
+                "Login realizado com sucesso! Redirecionando para o painel.\n\n" +
+                "Painel:\n" +
+                "\t1 - Ver Pedidos Abertos\n" +
+                "\t2 - Marcar Produto Como Esgotado (Simulação)\n" +
+                "\t3 - Esconder Produto Do Catálogo (Simulação)\n" +
+                "\t4 - Deslogar\n"
+            );
+        }
+
+        function renderVerPedidos() {
+            appState.screen = 'ADM_VER_PEDIDOS';
+            promptPrefix.innerHTML = `<span class="text-yellow">ADM(${adminUser.id})> </span>`;
+            const abertos = appState.currentOrders.filter(p => p.status === 'ABERTO' || p.status === 'EM_PREPARO');
+
+            let output =
+                "========================================\n" +
+                "| Painel de Administração - Pedidos |\n" +
+                "========================================\n\n" +
+                "Pedidos Abertos ou Em Preparo:\n";
+
+            if (abertos.length === 0) {
+                output += "Nenhum pedido aberto ou em preparo no momento.\n\n";
+            } else {
+                abertos.forEach(order => {
+                    const statusText = order.status === 'EM_PREPARO' ? ' (Em Preparo)' : '';
+                    output += `\nPedido ${order.id} - ${order.timestamp} - Status: ${order.status}${statusText}\n`;
+                    order.items.forEach(item => {
+                        const itemName = item.size ? `${item.name} ${item.size}` : item.name;
+                        output += `\t\t${itemName}\n`;
+                    });
+                });
+                output += "\n\t1 - Selecionar Pedido Por ID\n";
+            }
+            output += "\t0 - Voltar\n";
+
+            clearAndPrint(output);
+            appState.selectedOrderId = null;
+        }
+
+        function renderDetalhesPedido(order) {
+            appState.screen = 'ADM_DETALHES_PEDIDO';
+            promptPrefix.innerHTML = `<span class="text-yellow">ADM(${adminUser.id})> </span>`;
+
+            let output =
+                `========================================\n` +
+                `| Pedido ${order.id} - ${order.status.replace('_', ' ')} |\n` +
+                `========================================\n`;
+
+            output += `\nDetalhes do Pedido ${order.id} (${order.timestamp})\n`;
+            order.items.forEach(item => {
+                const itemName = item.size ? `${item.name} ${item.size}` : item.name;
+                output += `\t\t${item.qty}x ${itemName}\n`;
+            });
+            output += `\n\tCliente: ${order.customerInfo.phone}\n`;
+            output += `\tEndereço: ${order.customerInfo.address}\n`;
+
+            output += "\n\nOpções:\n";
+            output += "\t1 - Marcar Como Concluído\n";
+            output += "\t2 - Cancelar Pedido (Volta para status ABERTO)\n";
+            output += "\t0 - Voltar\n";
+
+            clearAndPrint(output);
+        }
+
+        // --- Função Principal de Processamento de Input ---
+
+        function processInput(input) {
+            const numInput = parseInt(input);
+            const isNumeric = !isNaN(numInput);
+
+            // 1. Tratamento de Erros e Inputs Específicos
+            if (appState.screen === 'PEDIDO_ENVIADO') {
+                renderMenuPrincipal();
+                return;
+            }
+
+            if (appState.userRole === 'FUNCIONARIO' && appState.screen !== 'LOGIN_ADM_INPUT') {
+                handleAdminFlow(input, numInput, isNumeric);
+                return;
+            }
+
+            // 2. Fluxo do Cliente
+            switch (appState.screen) {
+                case 'MENU_PRINCIPAL':
+                    if (input === '1') {
+                        renderCategorias();
+                    } else if (input === '2') {
+                        renderCarrinho();
+                    } else if (input === '3') {
+                        renderLoginAdmMenu();
+                    } else {
+                        appendLine("\nOpção inválida.");
+                    }
+                    break;
+
+                case 'CATALOGO_CATEGORIAS':
+                    if (input === '0') {
+                        renderMenuPrincipal();
+                    } else if (isNumeric && menuData[numInput]) {
+                        renderItens(numInput);
+                    } else {
+                        appendLine("\nOpção inválida.");
+                    }
+                    break;
+
+                case 'CATALOGO_ITENS':
+                    const category = menuData[appState.currentCategory];
+                    if (input === '0') {
+                        renderCategorias();
+                    } else if (isNumeric && numInput >= 1 && numInput <= category.items.length) {
+                        const selectedItem = category.items[numInput - 1];
+                        appState.currentItem = selectedItem;
+                        if (selectedItem.isSized) {
+                            renderSelectTamanho(selectedItem);
+                        } else {
+                            renderSelectQuantidade();
+                        }
+                    } else {
+                        appendLine("\nOpção inválida.");
+                    }
+                    break;
+
+                case 'SELECIONAR_TAMANHO':
+                    const itemTamanho = appState.tempSelection.item;
+                    if (isNumeric && numInput >= 1 && numInput <= itemTamanho.sizes.length) {
+                        const sizeIndex = numInput - 1;
+                        appState.tempSelection.size = itemTamanho.sizes[sizeIndex];
+                        appState.tempSelection.sizeIndex = sizeIndex;
+                        renderSelectQuantidade();
+                    } else {
+                        appendLine("\nOpção inválida.");
+                    }
+                    break;
+
+                case 'SELECIONAR_QUANTIDADE':
+                    if (isNumeric && numInput > 0) {
+                        appState.tempSelection.qty = numInput;
+
+                        let itemName = appState.currentItem.name;
+                        let itemPrice = appState.currentItem.price;
+                        let itemSize = null;
+
+                        if (appState.currentItem.isSized) {
+                            itemName = appState.currentItem.name; // Nome sem tamanho
+                            itemPrice = appState.tempSelection.size.price;
+                            itemSize = appState.tempSelection.size.size;
+                        } else {
+                            itemPrice = appState.currentItem.price;
+                        }
+
+                        appState.tempSelection.name = itemName;
+                        appState.tempSelection.price = itemPrice;
+                        appState.tempSelection.size = itemSize;
+                        appState.tempSelection.categoryId = appState.currentCategory;
+                        appState.tempSelection.itemId = appState.currentItem.id;
+
+                        renderConfirmacao(numInput, appState.tempSelection.name, appState.tempSelection.price, itemSize);
+                    } else {
+                        appendLine("\nQuantidade inválida. Digite um número maior que zero.");
+                        renderSelectQuantidade(); // Redesenha a tela para pedir novamente
+                    }
+                    break;
+
+                case 'CONFIRMAR_ITEM':
+                    if (input === '1') { // Sim
+                        // Adiciona o item formatado ao carrinho
+                        appState.cart.push({
+                            name: appState.tempSelection.name,
+                            price: appState.tempSelection.price,
+                            qty: appState.tempSelection.qty,
+                            size: appState.tempSelection.size
+                        });
+                        appState.tempSelection = {};
+                        appState.currentItem = null;
+                        renderItemAdicionado();
+                    } else if (input === '2') { // Não
+                        appState.tempSelection = {};
+                        appState.currentItem = null;
+                        renderCategorias();
+                    } else {
+                        appendLine("\nOpção inválida.");
+                    }
+                    break;
+
+                case 'ITEM_ADICIONADO':
+                    if (input === '1') {
+                        renderItens(appState.currentCategory);
+                    } else if (input === '2') {
+                        renderCategorias();
+                    } else if (input === '3') {
+                        renderCarrinho();
+                    } else {
+                        appendLine("\nOpção inválida.");
+                    }
+                    break;
+
+                case 'CARRINHO_VISUALIZAR':
+                    if (input === '0') {
+                        renderMenuPrincipal();
+                    } else if (input === '1') {
+                        if (appState.cart.length > 0) {
+                            renderCheckout(1); // Inicia checkout: Telefone
+                        } else {
+                            appendLine("\nO carrinho está vazio. Não é possível efetuar o pedido.");
+                            renderCarrinho(); // Redesenha para o usuário ver as opções
+                        }
+                    } else if (input === '2') {
+                        renderRemoverItem();
+                    } else {
+                        appendLine("\nOpção inválida.");
+                    }
+                    break;
+
+                case 'CARRINHO_REMOVER':
+                    if (input === '0') {
+                        renderCarrinho();
+                    } else if (isNumeric && numInput >= 1 && numInput <= appState.cart.length) {
+                        const removedItem = appState.cart.splice(numInput - 1, 1)[0];
+                        appendLine(`Item removido: ${removedItem.qty}x ${removedItem.name} ${removedItem.size || ''}`);
+                        renderCarrinho();
+                    } else {
+                        appendLine("\nNúmero de item inválido. Tente novamente.");
+                        renderRemoverItem(); // Redesenha a tela
+                    }
+                    break;
+
+                case 'CHECKOUT_PHONE':
+                    if (input.trim().length > 5) {
+                        appState.checkoutInfo.phone = input.trim();
+                        renderCheckout(2); // Próximo passo: Endereço
+                    } else {
+                        appendLine("\nTelefone inválido. Por favor, digite novamente.");
+                        renderCheckout(1); // Redesenha a tela para pedir o telefone novamente
+                    }
+                    break;
+
+                case 'CHECKOUT_ADDRESS':
+                    if (input.trim().length > 5) {
+                        appState.checkoutInfo.address = input.trim();
+                        renderCheckout(3); // Próximo passo: Confirmação
+                    } else {
+                        appendLine("\nEndereço inválido. Por favor, digite novamente.");
+                        renderCheckout(2); // Redesenha a tela para pedir o endereço novamente
+                    }
+                    break;
+
+                case 'CHECKOUT_CONFIRM':
+                    if (input === '1') {
+                        renderPedidoEnviado();
+                    } else if (input === '2') {
+                        appendLine("\nPedido Cancelado. Voltando ao Menu Principal.");
+                        renderMenuPrincipal();
+                    } else {
+                        appendLine("\nOpção inválida.");
+                    }
+                    break;
+
+                // Fluxo de login de admin (mesmo que o usuário seja CLIENTE)
+                case 'LOGIN_ADM_INPUT':
+                    if (appState.loginAttempt.step === 1) { // Input ID
+                        appState.loginAttempt.id = input;
+                        if (input === adminUser.id) {
+                            appState.loginAttempt.step = 2;
+                            renderLoginAdmInput();
+                        } else {
+                            appendLine("\nID inválida. Tente novamente.");
+                            appState.loginAttempt.step = 1; // Volta para ID
+                            renderLoginAdmInput();
+                        }
+                    } else if (appState.loginAttempt.step === 2) { // Input SENHA
+                        if (input === adminUser.pass) {
+                            appState.userRole = 'FUNCIONARIO';
+                            appState.loginAttempt = { step: 0 };
+                            renderPainelAdm();
+                        } else {
+                            appendLine("\nSenha inválida. Tente novamente.");
+                            appState.loginAttempt.step = 1; // Volta para ID
+                            renderLoginAdmInput();
+                        }
+                    }
+                    break;
+                case 'LOGIN_ADM_MENU':
+                    if (input === '0') {
+                        renderMenuPrincipal();
+                    } else if (input === '1') {
+                        appState.loginAttempt.step = 1;
+                        renderLoginAdmInput();
+                    } else {
+                        appendLine("\nOpção inválida.");
+                    }
+                    break;
+
+                default:
+                    // Se for um estado não mapeado (geralmente acontece após um erro ou tela temporária)
+                    renderMenuPrincipal();
+                    break;
+            }
+        }
+
+        // --- Fluxo de Administração ---
+        function handleAdminFlow(input, numInput, isNumeric) {
+            switch (appState.screen) {
+
+                case 'PAINEL_ADM':
+                    if (input === '1') {
+                        renderVerPedidos();
+                    } else if (input === '4') {
+                        appState.userRole = 'CLIENTE';
+                        renderMenuPrincipal();
+                    } else if (input === '2' || input === '3') {
+                         appendLine("\nOpção em simulação, não implementada neste protótipo.");
+                    } else {
+                        appendLine("\nOpção inválida.");
+                    }
+                    break;
+
+                case 'ADM_VER_PEDIDOS':
+                    const abertos = appState.currentOrders.filter(p => p.status === 'ABERTO' || p.status === 'EM_PREPARO');
+                    if (input === '0') {
+                        renderPainelAdm();
+                    } else if (input === '1' && abertos.length > 0) {
+                        appState.screen = 'ADM_SELECIONAR_PEDIDO_ID';
+                        promptPrefix.innerHTML = `<span class="text-yellow">ID> </span>`;
+                        clearAndPrint("\nDigite o ID do pedido para selecionar (0 para Voltar):\n");
+                    } else if (input === '1' && abertos.length === 0) {
+                        appendLine("\nNenhum pedido para selecionar.");
+                    } else {
+                        appendLine("\nOpção inválida.");
+                    }
+                    break;
+
+                case 'ADM_SELECIONAR_PEDIDO_ID':
+                    if (input === '0') {
+                        renderVerPedidos();
+                        return;
+                    }
+                    const orderToSelect = appState.currentOrders.find(p => p.id == input && (p.status === 'ABERTO' || p.status === 'EM_PREPARO'));
+                    if (orderToSelect) {
+                        if (orderToSelect.status === 'ABERTO') {
+                            orderToSelect.status = 'EM_PREPARO';
+                            // Não precisa de appendLine aqui, pois o próximo render mostrará o status atualizado
+                        }
+                        appState.selectedOrderId = orderToSelect.id;
+                        renderDetalhesPedido(orderToSelect);
+                    } else {
+                        appendLine("\nID de pedido inválido ou não está aberto/em preparo. Tente novamente ou digite 0 para Voltar.");
+                        promptPrefix.innerHTML = `<span class="text-yellow">ID> </span>`;
+                        // Permanece na tela ADM_SELECIONAR_PEDIDO_ID
+                    }
+                    break;
+
+                case 'ADM_DETALHES_PEDIDO':
+                    const order = appState.currentOrders.find(p => p.id === appState.selectedOrderId);
+                    if (!order) {
+                         renderVerPedidos();
+                         return;
+                    }
+
+                    if (input === '0') {
+                        renderVerPedidos();
+                    } else if (input === '1') {
+                        order.status = 'CONCLUIDO';
+                        appendLine(`\nPedido ${order.id} marcado como CONCLUÍDO.`);
+                        appState.selectedOrderId = null;
+                        renderVerPedidos();
+                    } else if (input === '2') {
+                        order.status = 'ABERTO';
+                        appendLine(`\nPedido ${order.id} CANCELADO (Voltou para ABERTO).`);
+                        appState.selectedOrderId = null;
+                        renderVerPedidos();
+                    } else {
+                        appendLine("\nOpção inválida.");
+                    }
+                    break;
+            }
+        }
+
+        // --- Inicialização e Listeners ---
+        function init() {
+            renderMenuPrincipal();
+            inputField.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    const input = inputField.value.trim();
+                    if (input) {
+                        // Exibe a entrada do usuário na área de output
+                        const currentPrompt = promptPrefix.textContent;
+                        // O campo de senha deve ser mascarado no log
+                        const displayInput = inputField.type === 'password' ? '********' : input;
+                        appendLine(`\n${currentPrompt}${displayInput}`);
+                        
+                        processInput(input);
+                        
+                        inputField.value = '';
+                        // Garante que a área de output role para baixo após o processamento
+                        outputArea.scrollTop = outputArea.scrollHeight;
+                    }
+                    // Garante que o campo de input esteja sempre focado, mesmo após o enter
+                    inputField.focus(); 
+                }
+            });
+            inputField.focus();
+        }
+
+        // Simula o 'onload' do corpo do Java/IDE
+        window.onload = init;
+    </script>
+
+</body>
+</html>
+
+
+<script defer data-domain="html.cafe" src="https://milkymouse.com/js/script.js"></script>
+
+   

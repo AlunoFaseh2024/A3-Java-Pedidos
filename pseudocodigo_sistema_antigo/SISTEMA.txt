@@ -1,0 +1,199 @@
+Algoritmo <sistema de pedidos para lanchonete>
+inteiro: opcaoMenu
+inteiro: opcaoHamburguer
+inteiro: quantidade
+real: precoTotal
+lista: listaHamburgueres
+registro: hamburguerSelecionado
+
+Inicio
+
+// MENU
+
+Função menuPrincipalOpcoes():
+	Escrever("Digite o número da opção: ")
+	Leia opcaoMenu
+	Se opcaoMenu == 1:
+		menuCatalogo()
+	Senão se opcaoMenu == 2:
+		menuCarrinho()
+	Senão se opcaoMenu == 3:
+		menuAdministracao()
+	Senão se opcaoMenu == 0:
+		desligarSistema()
+	Senão:
+		Escrever("Você digitou um número de uma opção inexistente!")
+		menuPrincipalOpcoes()
+	Fimse
+Fim da Função menuPrincipalOpcoes
+
+
+Função menuPrincipal():
+	Escrever("========================================")
+	Escrever("| Lanchonete Terminal | Menu Principal |")
+	Escrever("========================================")
+	Escrever("")
+	Escrever("Menu:")
+	Escrever("")
+	Escrever("1 - Catálogo")
+	Escrever("2 - Carrinho e Finalizar compra")
+	Escrever("3 - Login (Apenas administração)")
+	Escrever("0 - Desligar sistema")
+	menuPrincipalOpcoes()
+Fim da Função menuPrincipal
+
+
+//CATALOGO
+
+Função menuCatalogoOpcoes():
+	Escrever("Digite o número da opção: ")
+	Leia opcaoMenu
+	Se opcaoMenu == 1:
+		menuHamburgueres()
+	Senão se opcaoMenu == 2:
+		menuPizzas()
+	Senão se opcaoMenu == 3:
+		menuSalgados()
+	Senão se opcaoMenu == 4:
+		menuAcai()
+	Senão se opcaoMenu == 5:
+		menuBebidas()
+	Senão se opcaoMenu == 6:
+		menuDoces()
+	Senão se opcaoMenu == 7:
+		menuOutros()
+	Senão se opcaoMenu == 0:
+		menuCatalogo()
+	Senão:
+		Escrever("Você digitou um número de uma opção inexistente!")
+		menuCatalogoOpcoes()
+	Fimse
+Fim da Função menuCatalogoOpcoes
+
+
+Função menuCatalogo():
+	Escrever("=====================================")
+	Escrever("| Catálogo de Produtos - Categorias |")
+	Escrever("=====================================")
+	Escrever("")
+	Escrever("Nossas categorias de produtos:")
+	Escrever("1 - Hamburguers")
+	Escrever("2 - Pizzas")
+	Escrever("3 - Salgados e Lanches")
+	Escrever("4 - Açaí")
+	Escrever("5 - Bebidas")
+	Escrever("6 - Doces")
+	Escrever("7 - Outros")
+	Escrever("0 - Voltar")
+	menuCatalogoOpcoes()
+Fim da Função menuCatalogo
+
+
+// HAMBURGUERS
+
+unção menuHamburgueresOpcoes():
+	Escrever("Digite o número do hambúrguer desejado (ou 0 para voltar): ")
+	Leia opcaoHamburguer
+
+	Se opcaoHamburguer == 0:
+		menuCatalogo()  // Volta para o catálogo de categorias
+	Senão se opcaoHamburguer >= 1 E opcaoHamburguer <= tamanho(listaHamburgueres):
+		hamburguerSelecionado ← listaHamburgueres[opcaoHamburguer - 1]
+		menuSelecionarQuantidade(hamburguerSelecionado)
+	Senão:
+		Escrever("Você digitou um número de opção inexistente!")
+		menuHamburgueresOpcoes()
+	Fimse
+Fim da Função menuHamburgueresOpcoes
+
+
+Função menuHamburgueres():
+	Escrever("============================")
+	Escrever("| Catálogo de Hambúrgueres |")
+	Escrever("============================")
+	Escrever("")
+
+	// Simulação de leitura do banco de dados (dados equivalentes ao HTML)
+	listaHamburgueres ← [
+		{id: "H1", nome: "Hambúrguer Simples", descricao: "Pão, carne de boi, alface, tomate, queijo mussarela", preco: 12.00},
+		{id: "H2", nome: "Hambúrguer de Bacon", descricao: "Pão, carne de boi, queijo parmesão, bacon e cebola", preco: 16.00},
+		{id: "H3", nome: "Hambúrguer X-Frango", descricao: "Carne de frango, queijo cheddar e molho catupiry", preco: 15.00},
+		{id: "H4", nome: "Hambúrguer Gourmet", descricao: "Pão brioche, blend de carnes e geleia de pimenta", preco: 25.00},
+		{id: "H5", nome: "Veggie Burger", descricao: "Pão integral, burger de grão de bico e rúcula", preco: 19.00}
+	]
+
+	// Exibir a lista numerada
+	contador ← 1
+	Para cada item em listaHamburgueres faça
+		Escrever(contador, " - ", item.nome, " | R$", item.preco)
+		Escrever("    ", item.descricao)
+		contador ← contador + 1
+	FimPara
+	Escrever("0 - Voltar")
+	menuHamburgueresOpcoes()
+Fim da Função menuHamburgueres
+
+
+Função menuSelecionarQuantidade(hamburguer):
+	Escrever("=========================")
+	Escrever("| Selecionar Quantidade |")
+	Escrever("=========================")
+	Escrever("Digite a quantidade desejada de ", hamburguer.nome, ": ")
+	Leia quantidade
+
+	Se quantidade <= 0:
+		Escrever("Quantidade inválida! Tente novamente.")
+		menuSelecionarQuantidade(hamburguer)
+	Senão:
+		precoTotal ← hamburguer.preco * quantidade
+		menuConfirmarAdicao(hamburguer, quantidade, precoTotal)
+	Fimse
+Fim da Função menuSelecionarQuantidade
+
+
+Função menuConfirmarAdicao(hamburguer, qtd, total):
+	Escrever("=========================")
+	Escrever("| Confirmação de Pedido |")
+	Escrever("=========================")
+	Escrever("Deseja adicionar ", qtd, "x ", hamburguer.nome, " ao carrinho?")
+	Escrever("Preço unitário: R$", hamburguer.preco)
+	Escrever("Preço total: R$", total)
+	Escrever("")
+	Escrever("1 - Sim")
+	Escrever("2 - Não")
+	Leia opcaoMenu
+
+	Se opcaoMenu == 1:
+		adicionarAoCarrinho(hamburguer, qtd)
+	Senão se opcaoMenu == 2:
+		menuHamburgueres()
+	Senão:
+		Escrever("Opção inválida! Tente novamente.")
+		menuConfirmarAdicao(hamburguer, qtd, total)
+	Fimse
+Fim da Função menuConfirmarAdicao
+
+
+Função adicionarAoCarrinho(hamburguer, qtd):
+	// Adiciona o item ao carrinho do cliente
+	Escrever("============")
+	Escrever("| Sucesso! |")
+	Escrever("============")
+	Escrever(qtd, "x ", hamburguer.nome, " foram adicionados ao carrinho com sucesso!")
+	Escrever("")
+	Escrever("1 - Voltar para o Catálogo de Hambúrgueres")
+	Escrever("2 - Voltar para as Categorias")
+	Escrever("3 - Ir para o Carrinho")
+	Leia opcaoMenu
+
+	Se opcaoMenu == 1:
+		menuHamburgueres()
+	Senão se opcaoMenu == 2:
+		menuCatalogo()
+	Senão se opcaoMenu == 3:
+		menuCarrinho()
+	Senão:
+		Escrever("Opção inválida!")
+		adicionarAoCarrinho(hamburguer, qtd)
+	Fimse
+Fim da Função adicionarAoCarrinho

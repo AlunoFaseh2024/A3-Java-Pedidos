@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Catálogo - Lanchonete</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-dark bg-primary">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="index.html">🍔 Lanchonete</a>
+      <a href="carrinho.html" class="btn btn-light btn-sm">
+        🛒 Carrinho <span id="cart-count" class="badge bg-danger">0</span>
+      </a>
+    </div>
+  </nav>
+
+  <div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="index.html">Início</a></li>
+        <li class="breadcrumb-item active" id="breadcrumb-current">Categorias</li>
+      </ol>
+    </nav>
+
+    <!-- Título dinâmico -->
+    <h3 id="page-title" class="mb-4">Categorias de Produtos</h3>
+
+    <!-- Botão voltar (escondido inicialmente) -->
+    <button id="btn-voltar" class="btn btn-outline-secondary mb-3" style="display:none;">
+      ← Voltar
+    </button>
+
+    <!-- Container principal -->
+    <div id="content-area" class="row g-3">
+      <div class="col-12 text-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Carregando...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { listarCategorias, listarProdutos } from './js/api.js';
+
+    let categoriaAtual = null;
+    const contentArea = document.getElementById('content-area');
+    const pageTitle = document.getElementById('page-title');
+    const btnVoltar = document.getElementById('btn-voltar');
+    const breadcrumb = document.getElementById('breadcrumb-current');
+
+    // Atualiza contador do carrinho
+    function atualizarCarrinho() {
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      document.getElementById('cart-count').textContent = cart.length;
+    }
+
+    // Renderiza categorias
+    async function renderCategorias() {
+      categoriaAtual = null;
+      pageTitle.textContent = "Categorias de Produtos";
+      breadcrumb.textContent = "Categorias";
+      btnVoltar.style.display = "none";
+
+      try {
+        const categorias = await listarCategorias();
+        contentArea.innerHTML = categorias.map(cat => `
+          <div class="col-md-4">
+            <div class="card h-100 shadow-sm hover-card" onclick="carregarProdutos(${cat.id}, '${cat.nome}')">
+              <div class="card-body text-center">
+                <h5 class="card-title">${cat.nome}</h5>
+                <p class="card-text text-muted">${cat.descricao || ''}</p>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        contentArea.innerHTML = `
+          <div class="col-12">
+            <div class="alert alert-danger">Erro ao carregar categorias: ${error.message}</div>
+          </div>
+        `;
+      }
+    }
+
+    // Renderiza produtos de uma categoria
+    window.carregarProdutos = async function(idCategoria, nomeCategoria) {
+      categoriaAtual = idCategoria;
+      pageTitle.textContent = nomeCategoria;
+      breadcrumb.textContent = nomeCategoria;
+      btnVoltar.style.display = "block";
+      
+      contentArea.innerHTML = `
+        <div class="col-12 text-center">
+          <div class="spinner-border text-primary" role="status"></div>
+        </div>
+      `;
+
+      try {
+        const produtos = await listarProdutos();
+        const produtosCategoria = produtos.filter(p => p.categoria?.id === idCategoria && p.visivel);
+
+        if (produtosCategoria.length === 0) {
+          contentArea.innerHTML = `
+            <div class="col-12">
+              <div class="alert alert-info">Nenhum produto disponível nesta categoria.</div>
+            </div>
+          `;
+          return;
+        }
+
+        contentArea.innerHTML = produtosCategoria.map(prod => `
+          <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title">${prod.nome}</h5>
+                <p class="card-text text-muted small">${prod.descricao || ''}</p>
+                ${prod.tamanho ? `
+                  <p class="text-primary mb-2">
+                    <strong>${prod.tamanho}</strong>
+                  </p>
+                ` : ''}
+                <p class="h5 text-success">R$ ${prod.preco.toFixed(2).replace('.', ',')}</p>
+                ${prod.disponivel ? `
+                  <button class="btn btn-primary w-100" onclick="selecionarProduto(${prod.id})">
+                    Adicionar ao Carrinho
+                  </button>
+                ` : `
+                  <button class="btn btn-secondary w-100" disabled>Indisponível</button>
+                `}
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        contentArea.innerHTML = `
+          <div class="col-12">
+            <div class="alert alert-danger">Erro ao carregar produtos: ${error.message}</div>
+          </div>
+        `;
+      }
+    };
+
+    // Selecionar produto e ir para página de detalhes
+    window.selecionarProduto = function(idProduto) {
+      localStorage.setItem('produtoSelecionado', idProduto);
+      window.location.href = 'item.html';
+    };
+
+    // Botão voltar
+    btnVoltar.addEventListener('click', renderCategorias);
+
+    // Inicialização
+    atualizarCarrinho();
+    renderCategorias();
+  </script>
+</body>
+</html>

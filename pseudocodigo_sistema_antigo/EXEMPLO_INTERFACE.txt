@@ -1,0 +1,194 @@
+# Funcionamento do sistema (ponto de vista do usuário cliente):
+
+tela menu:
+
+	1 - catalógo
+	2 - carrinho e finalizar compra
+	3 - login administração
+	
+usuário seleciona 2:
+	É exibido a mensagem de que não há nada no carrinho.
+	0 - Voltar
+	
+usuário seleciona 0:
+
+	1 - catalógo
+	2 - carrinho e finalizar compra
+	3 - login administração
+	
+usuário seleciona 1:
+	É exibibido as catégorias disponiveis.
+	1 - Hamburguers
+	2 - Pizzas
+	3 - Acaí
+	4 - Salgados
+	5 - refrigerantes
+	6 - doces
+	0 - voltar
+
+usuário seleciona 1:
+	É exibido os hamburgueres disponiveis. [nome, descrição, preço]
+	1 - Hamburguer simples | R$ 12,00
+			Pão, carne de boi, alface, tomate, queijo mussarela
+			
+	2 - Hamburguer de bacon | R$ 16,00
+			Pão, carne de boi, alface, tomate, queijo parmesão, bacon, cebola
+			
+	3 - Hamburguer de X -frango | R$ 15,00
+			Pão, carne de frango, alface, tomate, queijo cheddar, frango desfiado, molho de catupity
+	
+	0 - voltar
+	
+usuário seleciona 2:
+	Selecione a quantidade:
+
+Usuário insere 1:
+	Gostaria de adicionar 1 Hamburguer de bacon ao carrinho?
+		1 - sim
+		2 - não
+		
+usuário seleciona 1:
+	Item adicionado ao carrinho.
+	1 - voltar para o catálogo
+	2 - voltar para as catégorias
+	3 - ir para o carrinho
+
+usuário seleciona 2:
+	1 - Hamburguers
+	2 - Pizzas
+	3 - Açaí
+	4 - Salgados
+	5 - refrigerantes
+	6 - doces
+	0 - voltar
+	
+usuário seleciona 3:
+	É exibido os hamburgueres disponiveis. [nome, descrição]
+	1 - açaí comum
+			açaí, banana, leite em pó e leite condensado
+			
+	2 - açaí com morango e chocolate
+			açaí, morango, leite em pó e chocolate
+			
+	3 - açaí com pistache
+			açaí, banana, pistache, leite em pó e leite condensado
+			
+	4 - açaí maluco
+			açaí, banana, morango, pistache, leite em pó, chocolate e leite condensado
+			
+	0 - voltar
+	
+usuário seleciona 1:
+	Selecione o tamanho:
+	1 - 300ML | R$ 10,00
+	2 - 500ML | R$ 15,00
+	3 - 750ML | R$ 20,00
+	4 - 1L    | R$ 30,00
+	
+usuário seleciona 2:
+	Selecione a quantidade:
+	
+usuário insere 2:
+	Gostaria de adicionar 2 açaí comum 500ML ao carrinho?
+		1 - sim
+		2 - não
+		
+usuário seleciona 1:
+	Item adicionado ao carrinho.
+	1 - voltar para o catálogo
+	2 - voltar para as catégorias
+	3 - ir para o carrinho
+	
+usuário seleciona 3:
+	Itens no carrinho:
+	Hamburguer de bacon | R$ 16,00
+	acaí comum 500ML 	| R$ 15,00
+	acaí comum 500ML 	| R$ 15,00
+	
+	1 - efetuar pedido
+	2 - remover item
+	0 - voltar ao menu
+	
+usuário seleciona 2:
+	1 - Hamburguer de bacon | R$ 16,00
+	2 - acaí comum 500ML 	| R$ 15,00
+	3 - acaí comum 500ML 	| R$ 15,00
+	
+	Digite o número do item a ser removido, 0 para cancelar.
+	
+usuário seleciona 2:
+	Itens no carrinho:
+	Hamburguer de bacon | R$ 16,00
+	acaí comum 500ML 	| R$ 15,00
+	
+	1 - efetuar pedido
+	2 - remover item
+	0 - voltar ao menu
+
+usuário seleciona 1:
+	Digite o seu telefone:
+	
+usuário insere (32)96611-2233:
+	Digite o seu endereço:
+
+usuário insere Bairro Inexistente, Rua dos trouxas, número 0:
+	Total da compra R$ 31,00
+	Telefone de contato: (32)96611-2233
+	Endereço: Bairro Inexistente, Rua dos trouxas, número 0
+	
+	1 - confirmar pedido
+	2 - cancelar pedido
+	
+usuário seleciona 1:
+	Pedido enviado!
+	
+# Funcionamento do sistema (ponto de vista do usuário funcionário):
+
+tela menu:
+
+	1 - catalógo
+	2 - carrinho e finalizar compra
+	3 - login administração
+	
+usuário seleciona 3:
+	1 - fazer login
+	0 - voltar
+	
+usuário seleciona 1:
+	digite a sua ID:
+	
+usuário insere H718:
+	digite a sua senha:
+	
+usuário insere 934123:
+	Login feito com sucesso!
+	Redirecionando para o painel.
+	
+painel:
+	1 - ver pedidos abertos
+	2 - marcar produto como esgotado (produtos esgotados aparecem como esgotados do catálogo)
+	3 - esconder produto do catálogo (produtos marcados como escondidos não são exibidos no catálogo)
+	4 - deslogar
+	
+usuário seleciona 1:
+	Pedido 12234 - 20:18 - 10/09/2025
+		Hamburguer de bacon
+		acaí comum 500ML
+		
+	1  - selecionar pedido
+	0 - voltar
+	
+usuário seleciona 1:
+	1 - Pedido 12234 - 20:18 - 10/09/2025
+	0 - voltar
+	
+usuário seleciona 1:
+		Após selecionar o pedido, ele é marcado como em preparo.
+		Pedido 12234 - 20:18 - 10/09/2025
+			Hamburguer de bacon
+			acaí comum 500ML
+			
+		1 - marcar como concluído
+		2 - cancelar (volta seu estado, de em preparao para aberto)
+		0 - voltar
+		

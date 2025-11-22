@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel Gerente - Lanchonete</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-dark bg-dark">
+    <div class="container-fluid">
+      <span class="navbar-brand">👨‍💼 Painel do Gerente</span>
+      <div>
+        <span class="text-white me-3" id="user-name"></span>
+        <button class="btn btn-outline-light btn-sm" id="btn-logout">Sair</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container py-4">
+    <div class="row mb-4">
+      <div class="col">
+        <h3>Gerenciamento do Sistema</h3>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4" id="painelTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="produtos-tab" data-bs-toggle="tab" 
+                data-bs-target="#produtos" type="button">
+          📦 Produtos
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="categorias-tab" data-bs-toggle="tab" 
+                data-bs-target="#categorias" type="button">
+          📋 Categorias
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="funcionarios-tab" data-bs-toggle="tab" 
+                data-bs-target="#funcionarios" type="button">
+          👥 Funcionários
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="pedidos-tab" data-bs-toggle="tab" 
+                data-bs-target="#pedidos" type="button">
+          🛒 Pedidos
+        </button>
+      </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="painelTabContent">
+      
+      <!-- PRODUTOS -->
+      <div class="tab-pane fade show active" id="produtos" role="tabpanel">
+        <div class="card shadow">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Lista de Produtos</h5>
+            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" 
+                    data-bs-target="#modalProduto" onclick="novoProduto()">
+              + Novo Produto
+            </button>
+          </div>
+          <div class="card-body">
+            <div id="lista-produtos"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CATEGORIAS -->
+      <div class="tab-pane fade" id="categorias" role="tabpanel">
+        <div class="card shadow">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Lista de Categorias</h5>
+            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" 
+                    data-bs-target="#modalCategoria" onclick="novaCategoria()">
+              + Nova Categoria
+            </button>
+          </div>
+          <div class="card-body">
+            <div id="lista-categorias"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FUNCIONÁRIOS -->
+      <div class="tab-pane fade" id="funcionarios" role="tabpanel">
+        <div class="card shadow">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Lista de Funcionários</h5>
+            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" 
+                    data-bs-target="#modalFuncionario" onclick="novoFuncionario()">
+              + Novo Funcionário
+            </button>
+          </div>
+          <div class="card-body">
+            <div id="lista-funcionarios"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PEDIDOS -->
+      <div class="tab-pane fade" id="pedidos" role="tabpanel">
+        <div class="card shadow">
+          <div class="card-header">
+            <h5 class="mb-0">Todos os Pedidos</h5>
+          </div>
+          <div class="card-body">
+            <div id="lista-pedidos"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Produto -->
+  <div class="modal fade" id="modalProduto" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Produto</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formProduto">
+            <input type="hidden" id="produtoId">
+            <div class="mb-3">
+              <label class="form-label">Nome:</label>
+              <input type="text" class="form-control" id="produtoNome" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Descrição:</label>
+              <textarea class="form-control" id="produtoDescricao" rows="2"></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Preço:</label>
+              <input type="number" step="0.01" class="form-control" id="produtoPreco" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Categoria:</label>
+              <select class="form-select" id="produtoCategoria" required></select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Tamanho (opcional):</label>
+              <input type="text" class="form-control" id="produtoTamanho" 
+                     placeholder="Ex: P, M, G, 500ML">
+            </div>
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="produtoDisponivel" checked>
+              <label class="form-check-label" for="produtoDisponivel">Disponível</label>
+            </div>
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="produtoVisivel" checked>
+              <label class="form-check-label" for="produtoVisivel">Visível no catálogo</label>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" onclick="salvarProduto()">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Categoria -->
+  <div class="modal fade" id="modalCategoria" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Categoria</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formCategoria">
+            <input type="hidden" id="categoriaId">
+            <div class="mb-3">
+              <label class="form-label">Nome:</label>
+              <input type="text" class="form-control" id="categoriaNome" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Descrição:</label>
+              <textarea class="form-control" id="categoriaDescricao" rows="2"></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" onclick="salvarCategoria()">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Funcionário -->
+  <div class="modal fade" id="modalFuncionario" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Funcionário</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formFuncionario">
+            <input type="hidden" id="funcionarioId">
+            <div class="mb-3">
+              <label class="form-label">Identificador:</label>
+              <input type="text" class="form-control" id="funcionarioIdentificador" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Nome:</label>
+              <input type="text" class="form-control" id="funcionarioNome" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Senha:</label>
+              <input type="password" class="form-control" id="funcionarioSenha" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Cargo:</label>
+              <select class="form-select" id="funcionarioCargo" required>
+                <option value="GERENTE">Gerente</option>
+                <option value="ATENDENTE">Atendente</option>
+                <option value="ENTREGADOR">Entregador</option>
+              </select>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" onclick="salvarFuncionario()">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module">
+    import { 
+      listarProdutos, criarProduto, atualizarProduto, deletarProduto,
+      listarCategorias, criarCategoria, atualizarCategoria, deletarCategoria,
+      listarFuncionarios, criarFuncionario, deletarFuncionario,
+      listarPedidos, atualizarStatusPedido
+    } from './js/api.js';
+
+    // Verificar autenticação
+    const usuario = JSON.parse(sessionStorage.getItem('usuario'));
+    if (!usuario || usuario.cargo !== 'GERENTE') {
+      window.location.href = 'login-admin.html';
+    }
+    document.getElementById('user-name').textContent = usuario.nome;
+
+    // Logout
+    document.getElementById('btn-logout').addEventListener('click', () => {
+      sessionStorage.removeItem('usuario');
+      window.location.href = 'index.html';
+    });
+
+    // === PRODUTOS ===
+    async function carregarProdutos() {
+      const container = document.getElementById('lista-produtos');
+      try {
+        const produtos = await listarProdutos();
+        container.innerHTML = `
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Categoria</th>
+                <th>Preço</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${produtos.map(p => `
+                <tr>
+                  <td>${p.nome} ${p.tamanho ? `<span class="badge bg-info">${p.tamanho}</span>` : ''}</td>
+                  <td>${p.categoria?.nome || '-'}</td>
+                  <td>R$ ${p.preco.toFixed(2)}</td>
+                  <td>
+                    ${p.disponivel ? '<span class="badge bg-success">Disponível</span>' : '<span class="badge bg-danger">Indisponível</span>'}
+                    ${p.visivel ? '' : '<span class="badge bg-secondary ms-1">Oculto</span>'}
+                  </td>
+                  <td>
+                    <button class="btn btn-sm btn-warning" onclick="editarProduto(${p.id})">Editar</button>
+                    <button class="btn btn-sm btn-danger" onclick="excluirProduto(${p.id})">Excluir</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      } catch (error) {
+        container.innerHTML = `<div class="alert alert-danger">Erro: ${error.message}</div>`;
+      }
+    }
+
+    window.novoProduto = async () => {
+      document.getElementById('formProduto').reset();
+      document.getElementById('produtoId').value = '';
+      await carregarCategoriasSelect();
+    };
+
+    async function carregarCategoriasSelect() {
+      const select = document.getElementById('produtoCategoria');
+      const categorias = await listarCategorias();
+      select.innerHTML = categorias.map(c => 
+        `<option value="${c.id}">${c.nome}</option>`
+      ).join('');
+    }
+
+    window.salvarProduto = async () => {
+      const id = document.getElementById('produtoId').value;
+      const produto = {
+        nome: document.getElementById('produtoNome').value,
+        descricao: document.getElementById('produtoDescricao').value,
+        preco: parseFloat(document.getElementById('produtoPreco').value),
+        categoria: { id: parseInt(document.getElementById('produtoCategoria').value) },
+        tamanho: document.getElementById('produtoTamanho').value || null,
+        disponivel: document.getElementById('produtoDisponivel').checked,
+        visivel: document.getElementById('produtoVisivel').checked
+      };
+
+      try {
+        if (id) {
+          produto.id = parseInt(id);
+          await atualizarProduto(produto.id, produto);
+        } else {
+          await criarProduto(produto);
+        }
+        bootstrap.Modal.getInstance(document.getElementById('modalProduto')).hide();
+        await carregarProdutos();
+      } catch (error) {
+        alert('Erro: ' + error.message);
+      }
+    };
+
+    window.editarProduto = async (id) => {
+      const produtos = await listarProdutos();
+      const produto = produtos.find(p => p.id === id);
+      if (!produto) return;
+
+      document.getElementById('produtoId').value = produto.id;
+      document.getElementById('produtoNome').value = produto.nome;
+      document.getElementById('produtoDescricao').value = produto.descricao || '';
+      document.getElementById('produtoPreco').value = produto.preco;
+      document.getElementById('produtoTamanho').value = produto.tamanho || '';
+      document.getElementById('produtoDisponivel').checked = produto.disponivel;
+      document.getElementById('produtoVisivel').checked = produto.visivel;
+      
+      await carregarCategoriasSelect();
+      document.getElementById('produtoCategoria').value = produto.categoria?.id;
+      
+      new bootstrap.Modal(document.getElementById('modalProduto')).show();
+    };
+
+    window.excluirProduto = async (id) => {
+      if (!confirm('Deseja excluir este produto?')) return;
+      try {
+        await deletarProduto(id);
+        await carregarProdutos();
+      } catch (error) {
+        alert('Erro: ' + error.message);
+      }
+    };
+
+    // === CATEGORIAS ===
+    async function carregarCategorias() {
+      const container = document.getElementById('lista-categorias');
+      try {
+        const categorias = await listarCategorias();
+        container.innerHTML = `
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Descrição</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${categorias.map(c => `
+                <tr>
+                  <td>${c.nome}</td>
+                  <td>${c.descricao || '-'}</td>
+                  <td>
+                    <button class="btn btn-sm btn-warning" onclick="editarCategoria(${c.id})">Editar</button>
+                    <button class="btn btn-sm btn-danger" onclick="excluirCategoria(${c.id})">Excluir</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      } catch (error) {
+        container.innerHTML = `<div class="alert alert-danger">Erro: ${error.message}</div>`;
+      }
+    }
+
+    window.novaCategoria = () => {
+      document.getElementById('formCategoria').reset();
+      document.getElementById('categoriaId').value = '';
+    };
+
+    window.salvarCategoria = async () => {
+      const id = document.getElementById('categoriaId').value;
+      const categoria = {
+        nome: document.getElementById('categoriaNome').value,
+        descricao: document.getElementById('categoriaDescricao').value
+      };
+
+      try {
+        if (id) {
+          categoria.id = parseInt(id);
+          await atualizarCategoria(categoria.id, categoria);
+        } else {
+          await criarCategoria(categoria);
+        }
+        bootstrap.Modal.getInstance(document.getElementById('modalCategoria')).hide();
+        await carregarCategorias();
+      } catch (error) {
+        alert('Erro: ' + error.message);
+      }
+    };
+
+    window.editarCategoria = async (id) => {
+      const categorias = await listarCategorias();
+      const categoria = categorias.find(c => c.id === id);
+      if (!categoria) return;
+
+      document.getElementById('categoriaId').value = categoria.id;
+      document.getElementById('categoriaNome').value = categoria.nome;
+      document.getElementById('categoriaDescricao').value = categoria.descricao || '';
+      
+      new bootstrap.Modal(document.getElementById('modalCategoria')).show();
+    };
+
+    window.excluirCategoria = async (id) => {
+      if (!confirm('Deseja excluir esta categoria?')) return;
+      try {
+        await deletarCategoria(id);
+        await carregarCategorias();
+      } catch (error) {
+        alert('Erro: ' + error.message);
+      }
+    };
+
+    // === FUNCIONÁRIOS ===
+    async function carregarFuncionarios() {
+      const container = document.getElementById('lista-funcionarios');
+      try {
+        const funcionarios = await listarFuncionarios();
+        container.innerHTML = `
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Identificador</th>
+                <th>Nome</th>
+                <th>Cargo</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${funcionarios.map(f => `
+                <tr>
+                  <td><code>${f.identificador}</code></td>
+                  <td>${f.nome}</td>
+                  <td><span class="badge bg-primary">${f.cargo}</span></td>
+                  <td>
+                    <button class="btn btn-sm btn-danger" onclick="excluirFuncionario(${f.id})">Excluir</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      } catch (error) {
+        container.innerHTML = `<div class="alert alert-danger">Erro: ${error.message}</div>`;
+      }
+    }
+
+    window.novoFuncionario = () => {
+      document.getElementById('formFuncionario').reset();
+      document.getElementById('funcionarioId').value = '';
+    };
+
+    window.salvarFuncionario = async () => {
+      const funcionario = {
+        identificador: document.getElementById('funcionarioIdentificador').value,
+        nome: document.getElementById('funcionarioNome').value,
+        senhaHash: document.getElementById('funcionarioSenha').value,
+        cargo: document.getElementById('funcionarioCargo').value
+      };
+
+      try {
+        await criarFuncionario(funcionario);
+        bootstrap.Modal.getInstance(document.getElementById('modalFuncionario')).hide();
+        await carregarFuncionarios();
+      } catch (error) {
+        alert('Erro: ' + error.message);
+      }
+    };
+
+    window.excluirFuncionario = async (id) => {
+      if (!confirm('Deseja excluir este funcionário?')) return;
+      try {
+        await deletarFuncionario(id);
+        await carregarFuncionarios();
+      } catch (error) {
+        alert('Erro: ' + error.message);
+      }
+    };
+
+    // === PEDIDOS ===
+    async function carregarPedidos() {
+      const container = document.getElementById('lista-pedidos');
+      try {
+        const pedidos = await listarPedidos();
+        container.innerHTML = `
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Data/Hora</th>
+                <th>Cliente</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${pedidos.map(p => `
+                <tr>
+                  <td>#${p.id}</td>
+                  <td>${new Date(p.dataHora).toLocaleString('pt-BR')}</td>
+                  <td>${p.cliente?.telefone || '-'}</td>
+                  <td>R$ ${p.total?.toFixed(2) || '0.00'}</td>
+                  <td><span class="badge bg-${getStatusColor(p.status)}">${p.status}</span></td>
+                  <td>
+                    <select class="form-select form-select-sm" onchange="mudarStatus(${p.id}, this.value)">
+                      <option value="">Mudar status...</option>
+                      <option value="ABERTO">ABERTO</option>
+                      <option value="EM_PREPARO">EM_PREPARO</option>
+                      <option value="CONCLUIDO">CONCLUIDO</option>
+                      <option value="ENTREGUE">ENTREGUE</option>
+                      <option value="CANCELADO">CANCELADO</option>
+                    </select>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      } catch (error) {
+        container.innerHTML = `<div class="alert alert-danger">Erro: ${error.message}</div>`;
+      }
+    }
+
+    function getStatusColor(status) {
+      const colors = {
+        'ABERTO': 'info',
+        'EM_PREPARO': 'warning',
+        'CONCLUIDO': 'success',
+        'ENTREGUE': 'primary',
+        'CANCELADO': 'danger'
+      };
+      return colors[status] || 'secondary';
+    }
+
+    window.mudarStatus = async (id, novoStatus) => {
+      if (!novoStatus) return;
+      try {
+        await atualizarStatusPedido(id, novoStatus);
+        await carregarPedidos();
+      } catch (error) {
+        alert('Erro: ' + error.message);
+      }
+    };
+
+    // Event listeners para as tabs
+    document.getElementById('produtos-tab').addEventListener('shown.bs.tab', carregarProdutos);
+    document.getElementById('categorias-tab').addEventListener('shown.bs.tab', carregarCategorias);
+    document.getElementById('funcionarios-tab').addEventListener('shown.bs.tab', carregarFuncionarios);
+    document.getElementById('pedidos-tab').addEventListener('shown.bs.tab', carregarPedidos);
+
+    // Carregar dados iniciais
+    carregarProdutos();
+  </script>
+</body>
+</html>
