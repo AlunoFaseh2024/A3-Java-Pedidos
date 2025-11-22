@@ -43,11 +43,18 @@ Para usar o sistema, é necessário o __VSCode__ com o pack de extensões para J
 
 ### Não funcionais
 
-- Funcionar no navegador
+- Funcionar pelo navegador
+- Ter interface responsiva
+- Ter interface simples e intuitiva
+- Bom desempenho
+- Suportar mais de um usuário simultaneamente
+- Acessibilidade (__não implementado__)
+- API segura (__não implementado__)
+
 
 ## Gestão de projeto
 
-Utilizados o [_Canva_](https://www.canva.com/design/DAG2jIkMvb4/O9Bmx-5vT2mXhxYhOZAezQ/view?utm_content=DAG2jIkMvb4&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h4a1eeda631) para modelar o básico do sistema, mas a maior parte das decisões foi tomada pelo _WhatsApp_ e durante reuniões no Jitsi _Meet_.
+Utilizamos o [_Canva_](https://www.canva.com/design/DAG2jIkMvb4/O9Bmx-5vT2mXhxYhOZAezQ/view?utm_content=DAG2jIkMvb4&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h4a1eeda631) para modelar o básico do sistema, mas a maior parte das decisões foi tomada pelo _WhatsApp_ e durante reuniões no Jitsi _Meet_.
 
 ## Gravação do funcionamento
 

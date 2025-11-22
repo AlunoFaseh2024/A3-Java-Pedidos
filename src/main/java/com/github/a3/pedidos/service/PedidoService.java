@@ -42,27 +42,22 @@ public class PedidoService {
 
     @Transactional
     public Pedido criarPedido(Pedido pedido) {
-        // Configurar dados básicos do pedido
         pedido.setStatus(StatusPedido.ABERTO);
         pedido.setDataHora(LocalDateTime.now());
         pedido.setCodigoEntrega(CodigoEntregaGenerator.gerarCodigo());
 
-        // Processar cliente
         if (pedido.getCliente() != null) {
             Cliente cliente = pedido.getCliente();
             
-            // Salvar endereço primeiro se existir
             if (cliente.getEndereco() != null) {
                 Endereco enderecoSalvo = enderecoRepository.save(cliente.getEndereco());
                 cliente.setEndereco(enderecoSalvo);
             }
             
-            // Salvar cliente
             Cliente clienteSalvo = clienteRepository.save(cliente);
             pedido.setCliente(clienteSalvo);
         }
 
-        // Processar itens do pedido
         if (pedido.getItens() != null && !pedido.getItens().isEmpty()) {
             double total = 0.0;
             List<ItemPedido> itensProcessados = new ArrayList<>();
@@ -71,7 +66,6 @@ public class PedidoService {
                 ItemPedido novoItem = new ItemPedido();
                 novoItem.setPedido(pedido);
                 
-                // Buscar produto completo do banco
                 if (item.getProduto() != null && item.getProduto().getId() != null) {
                     Optional<Produto> produtoOpt = produtoRepository.findById(item.getProduto().getId());
                     if (produtoOpt.isPresent()) {
@@ -81,10 +75,8 @@ public class PedidoService {
                     }
                 }
                 
-                // Configurar quantidade e preço
                 novoItem.setQuantidade(item.getQuantidade());
                 
-                // Usar preço do produto se não foi especificado
                 if (item.getPrecoUnitario() != null) {
                     novoItem.setPrecoUnitario(item.getPrecoUnitario());
                 } else if (novoItem.getProduto() != null) {
@@ -93,7 +85,6 @@ public class PedidoService {
                     throw new RuntimeException("Preço unitário não especificado para o item");
                 }
                 
-                // Calcular subtotal
                 double subtotal = novoItem.getPrecoUnitario() * novoItem.getQuantidade();
                 total += subtotal;
                 
