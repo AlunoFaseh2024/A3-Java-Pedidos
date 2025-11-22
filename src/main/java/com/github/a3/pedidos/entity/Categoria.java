@@ -1,6 +1,5 @@
 package com.github.a3.pedidos.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 

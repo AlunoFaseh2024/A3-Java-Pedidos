@@ -1,6 +1,5 @@
 package com.github.a3.pedidos.dto;
 
-import java.util.List;
 import lombok.*;
 
 @Data

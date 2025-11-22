@@ -21,10 +21,9 @@ public class Produto {
 
     @ManyToOne
     @JoinColumn(name = "categoria_id")
-    @JsonIgnoreProperties({"produtos"}) // Evita serializar os produtos dentro da categoria
+    @JsonIgnoreProperties({"produtos"})
     private Categoria categoria;
 
-    // Exemplo: “P”, “M”, “G”, “1L” — opcional
     private String tamanho;
 
     private Boolean disponivel = true;
