@@ -22,6 +22,12 @@ Para usar o sistema, é necessário o __VSCode__ com o pack de extensões para J
 
 8 - A API já está funcionando, mas caso queira usar a interface WEB, acesse o diretório _A3-Java-Pedidos\src\main\resources\static_ pelo terminal, e execute o servidor Python com o comando __python -m http.server__ , caso você não tenha Python instalado em seu computador, use o comando __jwebserver -p 8000 -b 127.0.0.1__ . Depois abra no navegador: [http://localhost:8000](http://localhost:8000)
 
+9 - Para usar a área de administração da interface web, é necessário ter uma conta de gerente, para poder criar outras contas de tipos diferentes, para isso, se conecte no banco usando o DBeaver, HeidiSQL, ou outro programa. Abra o banco, e faça a seguinte consulta SQL:
+
+    INSERT INTO `funcionario` (`cargo`, `identificador`, `nome`, `senha_hash`) VALUES ('GERENTE', 'L1', 'Leão', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3');
+
+Após isso, faça login com o identificador __L1__ e a senha __123__ .
+
 ## Requisitos do projeto
 
 ### Funcionais
