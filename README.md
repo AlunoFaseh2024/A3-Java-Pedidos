@@ -58,4 +58,4 @@ Utilizamos o [_Canva_](https://www.canva.com/design/DAG2jIkMvb4/O9Bmx-5vT2mXhxYh
 
 ## Gravação do funcionamento
 
-Pode ser conferida dentro da pasta /video
+Pode ser conferida dentro da pasta /videos
